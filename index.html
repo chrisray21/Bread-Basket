@@ -1,0 +1,1203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Bread Basket</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Courier+Prime:wght@400;700&family=Karla:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+</head>
+<body>
+<style>
+  /* ============================================================
+     TOKENS
+     ============================================================ */
+  :root{
+    --ground:#EDEEE8;
+    --surface:#FBFAF6;
+    --card:#FFFFFF;
+    --ink:#1A1F1D;
+    --muted:#6E7672;
+    --faint:#8E9591;
+    --line:#D5D8D0;
+    --line-strong:#B9BEB5;
+    --red:#B83A2B;      --red-ink:#FFF3EF;
+    --teal:#0E6E78;     --teal-ink:#EEFAFB;
+    --ochre:#A87516;
+    --moss:#3F7A4E;
+    --tan:#C8B695;      --tan-ink:#2A2317;
+    --void:#1C1B19;     --void-ink:#E8E3D8;
+    --shadow:0 1px 0 rgba(26,31,29,.08), 0 3px 10px rgba(26,31,29,.06);
+    --radius:6px;
+    --c:var(--ink);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#14181A; --surface:#1C2225; --card:#232A2D;
+      --ink:#ECE9E1; --muted:#939C99; --faint:#79817E;
+      --line:#2E3639; --line-strong:#414A4D;
+      --red:#DE5F49;  --red-ink:#25100C;
+      --teal:#2FA3A6; --teal-ink:#07211F;
+      --ochre:#D9A63F; --moss:#69B37C;
+      --tan:#A2916E;  --tan-ink:#191509;
+      --void:#08090A; --void-ink:#8A8F8C;
+      --shadow:0 1px 0 rgba(0,0,0,.30), 0 3px 12px rgba(0,0,0,.28);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#14181A; --surface:#1C2225; --card:#232A2D;
+    --ink:#ECE9E1; --muted:#939C99; --faint:#79817E;
+    --line:#2E3639; --line-strong:#414A4D;
+    --red:#DE5F49;  --red-ink:#25100C;
+    --teal:#2FA3A6; --teal-ink:#07211F;
+    --ochre:#D9A63F; --moss:#69B37C;
+    --tan:#A2916E;  --tan-ink:#191509;
+    --void:#08090A; --void-ink:#8A8F8C;
+    --shadow:0 1px 0 rgba(0,0,0,.30), 0 3px 12px rgba(0,0,0,.28);
+  }
+
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{
+    background:var(--ground);color:var(--ink);
+    font-family:"Karla","Helvetica Neue",Arial,sans-serif;line-height:1.55;
+    -webkit-font-smoothing:antialiased;-webkit-touch-callout:none;
+  }
+  #app{min-height:100dvh;display:flex;flex-direction:column;max-width:880px;margin:0 auto}
+  main{flex:1;display:flex;flex-direction:column}
+  .view{flex:1;display:flex;flex-direction:column;padding:0 16px 20px}
+  .mono{font-family:"Courier Prime","Courier New",monospace}
+  .cond{font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif}
+
+  /* ============================================================
+     TOP BAR
+     ============================================================ */
+  #topbar{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:14px 16px 12px;
+  }
+  .mark{
+    font-family:"Courier Prime","Courier New",monospace;font-weight:700;
+    font-size:13px;letter-spacing:.22em;text-transform:uppercase;
+    border:1.5px solid var(--line-strong);border-radius:3px;padding:6px 10px 5px;
+    white-space:nowrap;
+  }
+  .mark span{color:var(--faint)}
+  #gametitle{
+    font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;font-weight:700;
+    font-size:19px;text-transform:uppercase;letter-spacing:.03em;line-height:1;
+    color:var(--c);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .barbtns{display:flex;gap:12px;align-items:center;flex:none}
+  .ghost{
+    font-family:"Courier Prime","Courier New",monospace;font-weight:700;
+    font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+    background:none;border:0;color:var(--muted);cursor:pointer;padding:6px 0;
+    text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-strong);
+    white-space:nowrap;
+  }
+  .ghost:hover{color:var(--ink)}
+  .ghost:focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:2px}
+
+  /* ============================================================
+     HOME
+     ============================================================ */
+  #view-home{gap:20px}
+  .masthead{display:flex;flex-direction:column;gap:11px;align-items:flex-start}
+  .tagline{
+    font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;font-weight:600;
+    font-size:clamp(26px,6.5vw,38px);line-height:1.06;margin:0;max-width:19ch;text-wrap:balance;
+  }
+  .tagline em{font-style:normal;color:var(--muted)}
+  .facts{
+    display:flex;flex-wrap:wrap;align-items:center;
+    font-family:"Courier Prime","Courier New",monospace;
+    font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  }
+  .facts span:not(:last-child)::after{content:"·";margin:0 9px;color:var(--line-strong)}
+  hr.rule{border:0;border-top:1px solid var(--line);margin:0;width:100%}
+  .games{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+  .game{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;
+  }
+  .glyph{
+    height:52px;display:flex;align-items:center;gap:5px;padding:0 14px;
+    border-bottom:1px solid var(--line);
+    background:color-mix(in srgb, var(--c) 9%, var(--surface));
+  }
+  .sq{width:11px;height:9px;border-radius:1.5px;background:var(--line-strong)}
+  .sq.r{background:var(--red)} .sq.t{background:var(--teal)} .sq.k{background:var(--ink)}
+  .digit{
+    width:24px;height:28px;display:grid;place-items:center;border:1.5px solid var(--c);
+    border-radius:3px;font-family:"Courier Prime","Courier New",monospace;font-weight:700;
+    font-size:15px;color:var(--c);
+  }
+  .digit.blank{border-style:dashed;color:var(--faint)}
+  .bar{flex:1;height:9px;border-radius:99px;background:var(--line);position:relative;max-width:190px}
+  .bar i{position:absolute;inset:0 32% 0 22%;background:var(--c);border-radius:99px}
+  .bar b{position:absolute;top:-5px;left:58%;width:3px;height:19px;background:var(--ink);border-radius:2px}
+  .step{
+    font-family:"Courier Prime","Courier New",monospace;font-weight:700;font-size:11px;
+    border:1.5px solid var(--line-strong);border-radius:99px;padding:3px 8px;color:var(--muted);
+  }
+  .step.goal{border-color:var(--c);color:var(--c);background:color-mix(in srgb, var(--c) 12%, transparent)}
+  .arrow{color:var(--faint);font-size:13px}
+  .pad{padding:15px 16px 16px;display:flex;flex-direction:column;gap:11px;flex:1}
+  .titlerow{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+  .game h2{
+    margin:0;font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;font-weight:700;
+    font-size:27px;line-height:1;text-transform:uppercase;letter-spacing:.01em;
+  }
+  .chip{
+    font-family:"Courier Prime","Courier New",monospace;font-size:9.5px;font-weight:700;
+    letter-spacing:.13em;text-transform:uppercase;padding:3px 7px 2px;border-radius:3px;
+    border:1px solid var(--c);color:var(--c);
+    background:color-mix(in srgb, var(--c) 10%, transparent);white-space:nowrap;
+  }
+  .hook{margin:0;font-size:14.5px}
+  .meta{
+    margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;
+    font-family:"Courier Prime","Courier New",monospace;
+    font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);
+  }
+  .meta li:not(:last-child)::after{content:"·";margin:0 7px;color:var(--line-strong)}
+
+  /* ---- rules disclosure + rules typography (shared with modal) ---- */
+  details{border-top:1px solid var(--line);padding-top:10px}
+  summary{
+    list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;
+    font-family:"Courier Prime","Courier New",monospace;font-size:11px;font-weight:700;
+    letter-spacing:.13em;text-transform:uppercase;color:var(--c);
+  }
+  summary::-webkit-details-marker{display:none}
+  summary:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:2px}
+  .chev{
+    width:8px;height:8px;border-right:1.7px solid currentColor;border-bottom:1.7px solid currentColor;
+    transform:rotate(45deg);transition:transform .18s ease;margin-bottom:3px;flex:none;
+  }
+  details[open] .chev{transform:rotate(-135deg);margin-bottom:-2px}
+  .rules{font-size:14px;line-height:1.62}
+  .rules p{margin:11px 0 0}
+  .rules p.lede{color:var(--muted)}
+  .rules ol{margin:10px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:7px}
+  .rules li::marker{font-family:"Courier Prime","Courier New",monospace;font-weight:700;color:var(--c)}
+  .eg{
+    margin-top:9px;padding:9px 11px;border-left:2.5px solid var(--c);
+    background:color-mix(in srgb, var(--c) 7%, transparent);
+    border-radius:0 3px 3px 0;font-size:13.5px;
+  }
+  .eg b{
+    font-family:"Courier Prime","Courier New",monospace;font-size:11px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--c);display:block;margin-bottom:2px;
+  }
+  .rules code{
+    font-family:"Courier Prime","Courier New",monospace;font-size:13px;
+    background:color-mix(in srgb, var(--ink) 7%, transparent);padding:1px 4px;border-radius:3px;
+  }
+  .play{
+    margin-top:auto;display:block;width:100%;text-align:center;
+    font-family:"Courier Prime","Courier New",monospace;font-weight:700;font-size:12px;
+    letter-spacing:.14em;text-transform:uppercase;padding:13px 12px;border-radius:var(--radius);
+    background:var(--c);color:var(--surface);border:1.5px solid var(--c);cursor:pointer;
+    transition:filter .15s;
+  }
+  .play:hover{filter:brightness(1.08)}
+  .play:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  footer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+  footer b{
+    display:block;font-family:"Courier Prime","Courier New",monospace;font-size:10.5px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:5px;font-weight:700;
+  }
+
+  /* ============================================================
+     SHARED GAME FURNITURE
+     ============================================================ */
+  .score{display:grid;grid-template-columns:1fr auto 1fr;align-items:stretch;gap:8px}
+  .team{
+    display:flex;flex-direction:column;gap:1px;padding:7px 11px 8px;border-radius:var(--radius);
+    background:var(--surface);border:1px solid var(--line);position:relative;overflow:hidden;
+  }
+  .team::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--tc)}
+  .team.right{text-align:right}
+  .team.right::before{inset:0 0 0 auto}
+  .team b{
+    font-family:"Courier Prime","Courier New",monospace;font-size:10.5px;letter-spacing:.17em;
+    text-transform:uppercase;color:var(--tc);font-weight:700;
+  }
+  .team i{
+    font-style:normal;font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+    font-weight:700;font-size:30px;line-height:.95;font-variant-numeric:tabular-nums;
+  }
+  .team.spent i{opacity:.35}
+  .pips{display:flex;flex-direction:column;justify-content:center;gap:5px}
+  .turnpip{width:9px;height:9px;border-radius:50%;background:var(--line-strong);transition:background .2s}
+  .turnpip.on{background:var(--tc)}
+  .banner{
+    font-family:"Courier Prime","Courier New",monospace;font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;text-align:center;color:var(--muted);min-height:17px;
+  }
+  .banner b{color:var(--c);font-weight:700}
+  .btn{
+    font-family:"Courier Prime","Courier New",monospace;font-weight:700;font-size:12px;
+    letter-spacing:.13em;text-transform:uppercase;padding:15px 10px;border-radius:var(--radius);
+    cursor:pointer;border:1.5px solid var(--line-strong);background:var(--surface);color:var(--ink);
+    transition:background .15s,color .15s,border-color .15s,filter .15s;
+    user-select:none;-webkit-user-select:none;
+  }
+  .btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .btn.primary{background:var(--c);color:var(--surface);border-color:var(--c)}
+  .btn.primary:hover:not(:disabled){filter:brightness(1.08)}
+  .btn:disabled{opacity:.35;cursor:default}
+  .hint{font-size:11.5px;color:var(--muted);text-align:center;line-height:1.45;margin:0}
+  .ctl{display:flex;flex-direction:column;gap:9px;margin-top:auto;padding-top:14px}
+
+  /* ---- keypad, shared by Cows & Bulls and Bomb Range ---- */
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+  .key{
+    font-family:"Courier Prime","Courier New",monospace;font-weight:700;font-size:21px;
+    padding:12px 0;border-radius:var(--radius);border:1.5px solid var(--line);
+    background:var(--surface);color:var(--ink);cursor:pointer;
+    font-variant-numeric:tabular-nums;transition:background .12s,opacity .12s;
+  }
+  .key:hover:not(:disabled){background:color-mix(in srgb, var(--c) 10%, var(--surface))}
+  .key:active:not(:disabled){transform:scale(.97)}
+  .key:disabled{opacity:.25;cursor:default}
+  .key:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .key.wide{font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+  .key.go{background:var(--c);color:var(--surface);border-color:var(--c)}
+  .key.go:hover:not(:disabled){background:var(--c);filter:brightness(1.08)}
+  .key.go:disabled{background:var(--surface);color:var(--muted);border-color:var(--line)}
+
+  /* ---- modal (rules + endgame) ---- */
+  .modal{
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;
+    background:color-mix(in srgb, var(--ground) 84%, transparent);
+    backdrop-filter:blur(3px);z-index:20;overflow-y:auto;
+  }
+  .modal .panel{
+    background:var(--surface);border:1.5px solid var(--line-strong);border-radius:8px;
+    padding:22px 20px 20px;max-width:400px;width:100%;box-shadow:var(--shadow);margin:auto;
+  }
+  .modal .panel.win{text-align:center;max-width:340px}
+  .panel h3{
+    margin:0 0 4px;font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;font-weight:700;
+    font-size:32px;line-height:1;text-transform:uppercase;color:var(--c);text-wrap:balance;
+  }
+  .panel h3.big{font-size:42px}
+  .panel .why{margin:0 0 18px;font-size:13.5px;color:var(--muted);line-height:1.5}
+  .panel .btn{width:100%;margin-top:14px}
+  .panel .btn+.btn{margin-top:8px}
+
+  /* ============================================================
+     TABLE AGENTS
+     ============================================================ */
+  #view-agents{gap:13px}
+  .board{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;touch-action:manipulation;user-select:none;margin:auto 0}
+  .cell{
+    aspect-ratio:1/.82;display:flex;align-items:center;justify-content:center;padding:3px 2px;
+    background:var(--card);border:1px solid var(--line);border-radius:5px;box-shadow:var(--shadow);
+    color:var(--ink);font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;font-weight:600;
+    font-size:clamp(10px,3.1vw,17px);line-height:1.02;text-transform:uppercase;text-align:center;
+    overflow-wrap:anywhere;cursor:pointer;
+    transition:transform .1s ease,box-shadow .12s ease,background .18s ease,color .18s ease,border-color .18s ease;
+  }
+  .cell:hover:not(:disabled){transform:translateY(-1px);border-color:var(--line-strong)}
+  .cell:active:not(:disabled){transform:translateY(0) scale(.985)}
+  .cell:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .cell:disabled{cursor:default}
+  .cell.done{box-shadow:none}
+  .cell[data-face="red"]{background:var(--red);color:var(--red-ink);border-color:var(--red)}
+  .cell[data-face="teal"]{background:var(--teal);color:var(--teal-ink);border-color:var(--teal)}
+  .cell[data-face="tan"]{background:var(--tan);color:var(--tan-ink);border-color:var(--tan)}
+  .cell[data-face="void"]{background:var(--void);color:var(--void-ink);border-color:var(--void)}
+  .board:not(.key) .cell.done span{text-decoration:line-through;text-decoration-thickness:1.5px;opacity:.75}
+  .board.key .cell.done{opacity:.28}
+  .board.key .cell{animation:flip .18s ease}
+  @keyframes flip{from{transform:rotateX(38deg);opacity:.4}to{transform:none;opacity:1}}
+  .numrow{
+    display:flex;align-items:center;gap:8px;justify-content:space-between;
+    border:1.5px solid var(--line);border-radius:var(--radius);padding:6px 8px 6px 12px;background:var(--surface);
+  }
+  .numlab{
+    font-family:"Courier Prime","Courier New",monospace;font-size:10.5px;letter-spacing:.13em;
+    text-transform:uppercase;color:var(--muted);font-weight:700;
+  }
+  .stepper{display:flex;align-items:center;gap:4px}
+  .stepper button{
+    width:38px;height:38px;border-radius:5px;border:1.5px solid var(--line-strong);
+    background:var(--surface);color:var(--ink);font-size:20px;line-height:1;cursor:pointer;
+    font-family:"Courier Prime","Courier New",monospace;
+  }
+  .stepper button:disabled{opacity:.3;cursor:default}
+  .stepper button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .stepper output{
+    min-width:34px;text-align:center;font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+    font-weight:700;font-size:26px;font-variant-numeric:tabular-nums;color:var(--c);
+  }
+  .taps{
+    display:flex;align-items:center;justify-content:center;gap:7px;
+    font-family:"Courier Prime","Courier New",monospace;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--muted);
+  }
+  .tapdots{display:flex;gap:4px}
+  .tapdot{width:10px;height:10px;border-radius:50%;background:var(--c)}
+  .tapdot.spent{background:var(--line-strong)}
+
+  /* ============================================================
+     COWS & BULLS
+     ============================================================ */
+  #view-cows{gap:12px}
+  .entry{display:flex;gap:8px;justify-content:center}
+  .slot{
+    width:52px;height:62px;display:grid;place-items:center;border-radius:var(--radius);
+    border:2px solid var(--line);background:var(--surface);
+    font-family:"Courier Prime","Courier New",monospace;font-weight:700;font-size:30px;
+    color:var(--ink);font-variant-numeric:tabular-nums;
+  }
+  .slot.filled{border-color:var(--c);color:var(--c)}
+  .slot.next{border-color:var(--c);border-style:dashed}
+  .log{
+    display:flex;flex-direction:column;gap:5px;overflow-y:auto;flex:1;min-height:70px;
+    padding-right:2px;
+  }
+  .log .empty{
+    font-size:12.5px;color:var(--faint);text-align:center;padding:16px 8px;line-height:1.5;
+  }
+  .row{
+    display:flex;align-items:center;gap:10px;padding:7px 11px;border-radius:5px;
+    background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--tc);
+  }
+  .row .g{
+    font-family:"Courier Prime","Courier New",monospace;font-weight:700;font-size:19px;
+    letter-spacing:.16em;font-variant-numeric:tabular-nums;flex:1;
+  }
+  .tally{display:flex;gap:6px;flex:none}
+  .tag{
+    font-family:"Courier Prime","Courier New",monospace;font-size:10px;font-weight:700;
+    letter-spacing:.1em;text-transform:uppercase;padding:3px 7px 2px;border-radius:3px;
+    border:1px solid var(--line-strong);color:var(--muted);white-space:nowrap;
+  }
+  .tag.bull{border-color:var(--moss);color:var(--moss);background:color-mix(in srgb,var(--moss) 12%,transparent)}
+  .tag.cow{border-color:var(--ochre);color:var(--ochre);background:color-mix(in srgb,var(--ochre) 12%,transparent)}
+  .tag.zero{opacity:.45}
+
+  /* ============================================================
+     BOMB RANGE
+     ============================================================ */
+  #view-bomb{gap:14px}
+  .rangebox{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 16px 14px;display:flex;flex-direction:column;gap:11px;box-shadow:var(--shadow);
+  }
+  .ends{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;font-weight:700;font-size:38px;
+    line-height:1;font-variant-numeric:tabular-nums;color:var(--c);
+  }
+  .ends em{
+    font-style:normal;font-family:"Courier Prime","Courier New",monospace;font-size:10px;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--faint);font-weight:700;
+  }
+  .track{height:14px;border-radius:99px;background:var(--line);position:relative;overflow:hidden}
+  .track i{position:absolute;top:0;bottom:0;background:var(--c);border-radius:99px;transition:left .35s ease,right .35s ease}
+  .left{
+    text-align:center;font-family:"Courier Prime","Courier New",monospace;font-size:10.5px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  }
+  .left b{color:var(--c);font-weight:700}
+  .guessbig{
+    text-align:center;font-family:"Courier Prime","Courier New",monospace;font-weight:700;
+    font-size:34px;letter-spacing:.14em;font-variant-numeric:tabular-nums;color:var(--c);
+    min-height:44px;line-height:44px;
+  }
+  .guessbig.blank{color:var(--line-strong)}
+
+  /* ============================================================
+     RACE TO 31
+     ============================================================ */
+  #view-race{gap:14px}
+  .totalbox{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 16px 16px;text-align:center;box-shadow:var(--shadow);
+  }
+  .totalbox em{
+    display:block;font-style:normal;font-family:"Courier Prime","Courier New",monospace;
+    font-size:10.5px;letter-spacing:.17em;text-transform:uppercase;color:var(--faint);font-weight:700;
+  }
+  .totalbox strong{
+    display:block;font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;font-weight:700;
+    font-size:76px;line-height:.92;font-variant-numeric:tabular-nums;color:var(--c);
+  }
+  .totalbox .of{
+    font-family:"Courier Prime","Courier New",monospace;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--muted);
+  }
+  .ladder{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin:auto 0}
+  .rung{
+    aspect-ratio:1;display:grid;place-items:center;border-radius:4px;
+    border:1.5px solid var(--line);background:var(--surface);
+    font-family:"Courier Prime","Courier New",monospace;font-size:11px;font-weight:700;
+    color:var(--faint);font-variant-numeric:tabular-nums;
+    transition:background .2s,color .2s,border-color .2s;
+  }
+  .rung.red{background:var(--red);border-color:var(--red);color:var(--red-ink)}
+  .rung.teal{background:var(--teal);border-color:var(--teal);color:var(--teal-ink)}
+  .rung.goal{border-width:2.5px;border-color:var(--ink);color:var(--ink)}
+  .rung.goal.red,.rung.goal.teal{color:#fff}
+  .adds{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .add{
+    font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;font-weight:700;font-size:30px;
+    padding:16px 0 14px;border-radius:var(--radius);border:1.5px solid var(--c);
+    background:var(--c);color:var(--surface);cursor:pointer;transition:filter .15s;
+  }
+  .add:hover:not(:disabled){filter:brightness(1.08)}
+  .add:active:not(:disabled){transform:scale(.98)}
+  .add:disabled{background:var(--surface);color:var(--faint);border-color:var(--line);cursor:default}
+  .add:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+  /* very small phones: tighten the chrome so the game name still fits */
+  @media (max-width:359px){
+    #topbar{padding:12px 12px 10px;gap:6px}
+    .view{padding:0 12px 16px}
+    #gametitle{font-size:15px}
+    .ghost{font-size:9px;letter-spacing:.08em}
+    .barbtns{gap:9px}
+    .slot{width:46px;height:56px;font-size:26px}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+  }
+</style>
+
+<div id="app">
+
+  <header id="topbar">
+    <button class="ghost" id="back" hidden>&larr; Basket</button>
+    <div class="mark" id="mark">Bread <span>//</span> Basket</div>
+    <div id="gametitle" hidden></div>
+    <div class="barbtns">
+      <button class="ghost" id="rulesbtn" hidden>Rules</button>
+      <button class="ghost" id="newbtn" hidden>New game</button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ================= HOME ================= -->
+    <section class="view" id="view-home">
+      <div class="masthead">
+        <h1 class="tagline">Four games for the table <em>while you wait for the food.</em></h1>
+        <div class="facts">
+          <span>4 players</span><span>2 teams of 2</span><span>one phone, passed around</span><span>works with no signal</span>
+        </div>
+      </div>
+      <hr class="rule">
+      <div class="games" id="games"></div>
+      <footer>
+        <b>Bread Basket</b>
+        Every game runs on this one page with no connection needed. Save it to your home screen and it will still be there in the car.
+      </footer>
+    </section>
+
+    <!-- ================= TABLE AGENTS ================= -->
+    <section class="view" id="view-agents" hidden>
+      <div class="score">
+        <div class="team" id="a-tred" style="--tc:var(--red)"><b>Red</b><i id="a-sred">9</i></div>
+        <div class="pips">
+          <div class="turnpip" id="a-pred" style="--tc:var(--red)"></div>
+          <div class="turnpip" id="a-pteal" style="--tc:var(--teal)"></div>
+        </div>
+        <div class="team right" id="a-tteal" style="--tc:var(--teal)"><b>Teal</b><i id="a-steal">8</i></div>
+      </div>
+      <div class="banner" id="a-banner" aria-live="polite"></div>
+      <div class="board" id="a-board" role="grid" aria-label="Word board"></div>
+
+      <div class="ctl" id="a-clue">
+        <button class="btn primary" id="a-key">Hold to see the key</button>
+        <div class="numrow">
+          <span class="numlab">Clue number</span>
+          <div class="stepper">
+            <button id="a-minus" aria-label="Fewer">&minus;</button>
+            <output id="a-num" aria-live="polite">2</output>
+            <button id="a-plus" aria-label="More">+</button>
+          </div>
+        </div>
+        <button class="btn" id="a-pass">Pass the phone &rarr;</button>
+        <p class="hint" id="a-hint"></p>
+      </div>
+
+      <div class="ctl" id="a-guess" hidden>
+        <div class="taps"><span id="a-tapstext"></span><span class="tapdots" id="a-tapdots"></span></div>
+        <button class="btn" id="a-end">End turn</button>
+        <p class="hint">Tap a word you think your partner meant. A wrong word ends the turn.</p>
+      </div>
+    </section>
+
+    <!-- ================= COWS & BULLS ================= -->
+    <section class="view" id="view-cows" hidden>
+      <div class="score">
+        <div class="team" id="c-tred" style="--tc:var(--red)"><b>Red guesses</b><i id="c-gred">0</i></div>
+        <div class="pips">
+          <div class="turnpip" id="c-pred" style="--tc:var(--red)"></div>
+          <div class="turnpip" id="c-pteal" style="--tc:var(--teal)"></div>
+        </div>
+        <div class="team right" id="c-tteal" style="--tc:var(--teal)"><b>Teal guesses</b><i id="c-gteal">0</i></div>
+      </div>
+      <div class="banner" id="c-banner" aria-live="polite"></div>
+      <div class="log" id="c-log"></div>
+      <div class="ctl">
+        <div class="entry" id="c-entry"></div>
+        <div class="keypad" id="c-pad"></div>
+      </div>
+    </section>
+
+    <!-- ================= BOMB RANGE ================= -->
+    <section class="view" id="view-bomb" hidden>
+      <div class="banner" id="b-banner" aria-live="polite"></div>
+      <div class="rangebox">
+        <div class="ends">
+          <span><em>Low</em><br><span id="b-lo">1</span></span>
+          <span style="text-align:right"><em>High</em><br><span id="b-hi">1000</span></span>
+        </div>
+        <div class="track"><i id="b-fill"></i></div>
+        <div class="left" id="b-left"></div>
+      </div>
+      <div class="log" id="b-log"></div>
+      <div class="ctl">
+        <div class="guessbig blank" id="b-guess">&mdash;&mdash;&mdash;&mdash;</div>
+        <div class="keypad" id="b-pad"></div>
+      </div>
+    </section>
+
+    <!-- ================= RACE TO 31 ================= -->
+    <section class="view" id="view-race" hidden>
+      <div class="banner" id="r-banner" aria-live="polite"></div>
+      <div class="totalbox">
+        <em>Total so far</em>
+        <strong id="r-total">0</strong>
+        <span class="of">Land on 31 to win</span>
+      </div>
+      <div class="ladder" id="r-ladder"></div>
+      <div class="ctl">
+        <div class="adds">
+          <button class="add" data-n="1">+1</button>
+          <button class="add" data-n="2">+2</button>
+          <button class="add" data-n="3">+3</button>
+        </div>
+        <p class="hint" id="r-hint"></p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ==========================================================
+   WORDS — deliberately 4th-grade vocabulary. Short, concrete,
+   and where possible carrying more than one meaning.
+   ========================================================== */
+var WORDS = ("APPLE ARM BACK BALL BAND BANK BAR BARK BASE BAT BEACH BEAR BED BELL BELT BERRY BIKE BIRD BLOCK BOARD BOAT BOLT BONE BOOK BOOT BOTTLE BOWL BOX BRAIN BREAD BRIDGE BROOM BRUSH BUBBLE BUCKET BUG BUS BUTTER BUTTON CAKE CAMP CANDLE CANDY CAP CAR CARD CARROT CASTLE CAT CAVE CHAIN CHAIR CHALK CHECK CHEESE CHEST CHICK CHIP CIRCLE CLAW CLIFF CLOCK CLOUD CLOWN CLUB COACH COAT COIN COOKIE CORN COUNT COW CRAB CRANE CROWN CUP DANCE DATE DECK DESK DIAMOND DICE DINOSAUR DOCTOR DOG DOLL DONUT DOOR DRAGON DRESS DRILL DRUM DUCK EAGLE EAR EGG ELF ENGINE EYE FACE FAIR FAN FARM FEATHER FENCE FIELD FILE FIRE FISH FLAG FLASH FLOOR FLOWER FLUTE FLY FOOT FOREST FORK FOX FROG FROST FRUIT GAME GARDEN GATE GHOST GIANT GIFT GLASS GLOVE GLUE GOAL GOAT GOLD GRAPE GRASS GREEN GUM HAIR HAMMER HAND HAT HAWK HEAD HEART HELMET HIVE HOLE HONEY HOOK HORN HORSE HOSE HOUSE ICE JACKET JAM JAR JELLY JET JOKE JUICE KEY KING KITE KNIGHT KNOT LADDER LAKE LAMP LEAF LEMON LETTER LIGHT LION LIP LOCK LOG MAP MARBLE MASK MATCH MILK MINT MIRROR MONKEY MOON MOOSE MOP MOTH MOUSE MOUTH MUD MUG NAIL NECK NEEDLE NEST NET NIGHT NOSE NOTE NURSE NUT OCEAN ONION ORANGE OWL PAINT PALM PAN PANTS PAPER PARK PARTY PATCH PATH PEACH PEANUT PEN PENCIL PENGUIN PEPPER PIANO PICKLE PIE PIG PILLOW PILOT PIN PIPE PIRATE PITCH PIZZA PLANE PLANT PLATE POCKET POLE POND POOL POPCORN PORCH POT POTATO PRESENT PRINCE PUMPKIN PUPPY PUZZLE QUEEN RABBIT RACE RADIO RAIN RAKE RANCH RING RIVER ROAD ROBOT ROCK ROCKET ROLL ROOF ROOT ROPE ROSE RULER SAIL SALT SAND SCALE SCARF SCHOOL SCREEN SEAL SEED SHADOW SHARK SHEEP SHELL SHIP SHIRT SHOE SHOP SHOT SHOVEL SINK SKATE SKI SKUNK SKY SLED SLIDE SMOKE SNAIL SNAKE SNOW SOAP SOCK SODA SPACE SPIDER SPOON SPRING SQUARE STAGE STAMP STAR STICK STONE STORM STOVE STRAW STREAM STRING SUGAR SUN SWING SWORD TABLE TAIL TANK TAPE TEACHER TEAM TENT THUMB TICKET TIE TIGER TIRE TOAST TOOTH TOP TORCH TOWEL TOWER TOY TRACK TRAIN TRAP TRAY TREE TRICK TRUCK TRUNK TUNNEL TURKEY TURTLE VAN VASE VOLCANO WAGON WALL WATCH WAVE WEB WELL WHALE WHEEL WHISTLE WIND WINDOW WING WITCH WOLF WOOD WORM YARD ZEBRA ZIPPER ZOO").split(" ");
+
+/* ==========================================================
+   HELPERS
+   ========================================================== */
+var $ = function(id){ return document.getElementById(id); };
+var TEAM = {red:"Red", teal:"Teal"};
+var TVAR = {red:"var(--red)", teal:"var(--teal)"};
+function other(t){ return t === "red" ? "teal" : "red"; }
+function coin(){ return Math.random() < .5 ? "red" : "teal"; }
+function shuffle(a){
+  for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=a[i]; a[i]=a[j]; a[j]=t; }
+  return a;
+}
+function el(tag, cls, txt){
+  var e = document.createElement(tag);
+  if(cls) e.className = cls;
+  if(txt != null) e.textContent = txt;
+  return e;
+}
+function pips(redOn, tealOn, pr, pt){
+  $(pr).classList.toggle("on", redOn);
+  $(pt).classList.toggle("on", tealOn);
+}
+
+/* ==========================================================
+   RULES — written for a 10-year-old reader.
+   Used both on the home cards and in the in-game Rules panel.
+   ========================================================== */
+var RULES = {
+  agents:
+    '<p class="lede">Find all of your team\'s secret words before the other team finds theirs.</p>'+
+    '<ol>'+
+    '<li>Twenty-five words show up on the screen. Some belong to Red, some belong to Teal, some belong to nobody, and one is the assassin.</li>'+
+    '<li>Only the clue-givers know which is which. On your turn, hold the button to peek at the secret key. Don\'t let anyone else see it.</li>'+
+    '<li>Say <b>one word</b> out loud, then set the <b>number</b> on the screen. The word is your hint. The number says how many of your team\'s words that hint points to.</li>'+
+    '<li>Tap "Pass the phone" and hand it to your partner. The key button disappears, so nobody can peek.</li>'+
+    '<li>Your partner taps the words they think you meant. They get as many taps as your number, plus one spare.</li>'+
+    '<li>Tap your own team\'s word and you keep going. Tap anything else and your turn stops right there.</li>'+
+    '<li>Tap the assassin and your team loses on the spot. Be careful.</li>'+
+    '</ol>'+
+    '<div class="eg"><b>For example</b>Your secret words are APPLE, BANANA and CARROT. You say <code>Food</code> and set the number to <code>3</code>. Now your partner knows to look for three words that all have something to do with food, and they get four taps to find them.</div>'+
+    '<p>The first team to find all of their own words wins.</p>',
+
+  cows:
+    '<p class="lede">Be the first team to work out the phone\'s secret number.</p>'+
+    '<ol>'+
+    '<li>The phone picks a secret number with four different digits, like <code>5 2 9 1</code>. Nobody gets to see it.</li>'+
+    '<li>Teams take turns guessing a four-digit number. You can\'t use the same digit twice.</li>'+
+    '<li>After every guess, the phone tells you two things. <b>Bulls</b> are digits you got right that are also in the right spot. <b>Cows</b> are digits that are in the secret number but sitting in the wrong spot.</li>'+
+    '<li>Every guess and its answer stays on the screen, so you can look back at all of them to figure out what fits.</li>'+
+    '<li>Get four bulls and your team wins.</li>'+
+    '</ol>'+
+    '<div class="eg"><b>For example</b>The secret is <code>5291</code> and you guess <code>5219</code>. You get <b>2 bulls</b> &mdash; the 5 and the 2 are in exactly the right places. You also get <b>2 cows</b> &mdash; the 1 and the 9 belong in the number, but you swapped them.</div>'+
+    '<p>Your first guess is really just for information. Try something plain like <code>1234</code> and see what comes back.</p>',
+
+  bomb:
+    '<p class="lede">This one is backwards. You are trying <b>not</b> to guess the secret number.</p>'+
+    '<ol>'+
+    '<li>The phone picks a secret number somewhere between 1 and 1000.</li>'+
+    '<li>Teams take turns guessing a number.</li>'+
+    '<li>If your guess is too low, the bottom of the range jumps up to your number. If it\'s too high, the top drops down. The screen always shows you the range that\'s still alive.</li>'+
+    '<li>The range shrinks a little more every turn. Before long there are only a handful of numbers left, and one of them is the bomb.</li>'+
+    '<li>Land exactly on the secret number and your team loses.</li>'+
+    '</ol>'+
+    '<div class="eg"><b>For example</b>The range is <code>1 &ndash; 1000</code>. Red guesses 400 and it\'s too low, so the range becomes <code>401 &ndash; 1000</code>. Teal guesses 700 and it\'s too high, so the range becomes <code>401 &ndash; 699</code>. Now it\'s Red\'s turn and they have a much smaller box to work with.</div>',
+
+  race:
+    '<p class="lede">Be the team that makes the total hit exactly 31.</p>'+
+    '<ol>'+
+    '<li>The total starts at zero.</li>'+
+    '<li>Teams take turns adding <code>1</code>, <code>2</code> or <code>3</code> to the total.</li>'+
+    '<li>You have to add something on your turn. You can\'t skip and you can\'t add more than 3.</li>'+
+    '<li>Whichever team makes the total land exactly on 31 wins the game.</li>'+
+    '<li>You can\'t go over 31. If the total is 29, you may only add 1 or 2.</li>'+
+    '</ol>'+
+    '<div class="eg"><b>For example</b>Red adds 3, so the total is 3. Teal adds 2, total 5. Red adds 1, total 6. Teal adds 3, total 9. And on it goes.</div>'+
+    '<p>There\'s a hidden pattern in this game. Certain totals are wonderful to hand your opponent, and certain ones will lose you the game every time. Play it a few rounds and see if you can spot which is which &mdash; once you find it, you can win almost every game you start.</p>'
+};
+
+var GAMES = [
+  { key:"agents", name:"Table Agents", accent:"var(--red)",
+    hook:"Give your partner a one-word clue and hope they pick the right words off the board.",
+    meta:["Word game","10–15 min","Ages 8+"],
+    glyph:'<i class="sq r"></i><i class="sq"></i><i class="sq t"></i><i class="sq r"></i><i class="sq"></i><i class="sq t"></i><i class="sq k"></i><i class="sq r"></i><i class="sq"></i><i class="sq t"></i><i class="sq r"></i><i class="sq"></i><i class="sq t"></i>' },
+  { key:"cows", name:"Cows & Bulls", accent:"var(--teal)",
+    hook:"Crack a secret four-digit code before the other team does, one clue at a time.",
+    meta:["Deduction","5–10 min","Ages 9+"],
+    glyph:'<i class="digit">5</i><i class="digit blank">?</i><i class="digit">9</i><i class="digit blank">?</i>' },
+  { key:"bomb", name:"Bomb Range", accent:"var(--ochre)",
+    hook:"Guess near the secret number, but never land on it. The window keeps closing.",
+    meta:["Nerve","3–5 min","Ages 6+"],
+    glyph:'<span class="step">1</span><i class="bar"><i></i><b></b></i><span class="step">1000</span>' },
+  { key:"race", name:"Race to 31", accent:"var(--moss)",
+    hook:"Add one, two or three. Land exactly on thirty-one and you win. There’s a trick to it.",
+    meta:["Strategy","2 min","Ages 6+"],
+    glyph:'<span class="step">+1</span><span class="step">+2</span><span class="step">+3</span><span class="arrow">&rarr;</span><span class="step goal">31</span>' }
+];
+
+/* ==========================================================
+   HOME CARDS
+   ========================================================== */
+(function buildHome(){
+  var host = $("games");
+  GAMES.forEach(function(g){
+    var art = el("article","game");
+    art.style.setProperty("--c", g.accent);
+    art.innerHTML =
+      '<div class="glyph" aria-hidden="true">'+g.glyph+'</div>'+
+      '<div class="pad">'+
+        '<div class="titlerow"><h2></h2><span class="chip">Ready</span></div>'+
+        '<p class="hook"></p>'+
+        '<ul class="meta"></ul>'+
+        '<details><summary>How to play <i class="chev"></i></summary><div class="rules">'+RULES[g.key]+'</div></details>'+
+        '<button class="play">Play</button>'+
+      '</div>';
+    art.querySelector("h2").textContent = g.name;
+    art.querySelector(".hook").textContent = g.hook;
+    var ul = art.querySelector(".meta");
+    g.meta.forEach(function(m){ ul.appendChild(el("li", null, m)); });
+    art.querySelector(".play").addEventListener("click", function(){ open(g.key); });
+    host.appendChild(art);
+  });
+})();
+
+/* ==========================================================
+   ROUTER
+   ========================================================== */
+var current = null;
+var STARTERS = { agents:startAgents, cows:startCows, bomb:startBomb, race:startRace };
+
+function open(key){
+  current = key;
+  var g = GAMES.filter(function(x){ return x.key === key; })[0];
+  document.documentElement.style.setProperty("--c", g.accent);
+  $("view-home").hidden = true;
+  GAMES.forEach(function(x){ $("view-"+x.key).hidden = (x.key !== key); });
+  $("mark").hidden = true;
+  $("back").hidden = false;
+  $("gametitle").hidden = false;
+  $("gametitle").textContent = g.name;
+  $("rulesbtn").hidden = false;
+  $("newbtn").hidden = false;
+  closeModal();
+  STARTERS[key]();
+  window.scrollTo(0,0);
+}
+function home(){
+  current = null;
+  document.documentElement.style.setProperty("--c", "var(--ink)");
+  GAMES.forEach(function(x){ $("view-"+x.key).hidden = true; });
+  $("view-home").hidden = false;
+  $("mark").hidden = false;
+  $("back").hidden = true;
+  $("gametitle").hidden = true;
+  $("rulesbtn").hidden = true;
+  $("newbtn").hidden = true;
+  closeModal();
+  window.scrollTo(0,0);
+}
+$("back").addEventListener("click", home);
+(function(){
+  var nb = $("newbtn"), armed = false, timer = null;
+  function disarm(){ armed = false; nb.textContent = "New game"; clearTimeout(timer); }
+  nb.addEventListener("click", function(){
+    if(!current) return;
+    if(!armed && !modal){
+      armed = true;
+      nb.textContent = "Tap to confirm";
+      timer = setTimeout(disarm, 3000);
+      return;
+    }
+    disarm(); closeModal(); STARTERS[current]();
+  });
+  $("back").addEventListener("click", disarm);
+})();
+$("rulesbtn").addEventListener("click", function(){
+  if(!current) return;
+  var g = GAMES.filter(function(x){ return x.key === current; })[0];
+  var panel = el("div","panel");
+  panel.innerHTML = '<h3></h3><div class="rules">'+RULES[current]+'</div><button class="btn primary">Got it</button>';
+  panel.querySelector("h3").textContent = g.name;
+  panel.querySelector("button").addEventListener("click", closeModal);
+  showModal(panel);
+});
+
+/* ==========================================================
+   MODAL
+   ========================================================== */
+var modal = null;
+function showModal(panel){
+  closeModal();
+  modal = el("div","modal");
+  modal.appendChild(panel);
+  modal.addEventListener("click", function(e){ if(e.target === modal) closeModal(); });
+  document.body.appendChild(modal);
+  var b = panel.querySelector("button");
+  if(b) b.focus();
+}
+function closeModal(){ if(modal){ modal.remove(); modal = null; } }
+document.addEventListener("keydown", function(e){ if(e.key === "Escape") closeModal(); });
+
+function win(team, why, accent){
+  var panel = el("div","panel win");
+  panel.style.setProperty("--c", accent || TVAR[team]);
+  panel.innerHTML = '<h3 class="big"></h3><p class="why"></p>'+
+    '<button class="btn primary">Play again</button><button class="btn">Back to the basket</button>';
+  panel.querySelector("h3").textContent = TEAM[team] + " wins";
+  panel.querySelector(".why").textContent = why;
+  var btns = panel.querySelectorAll("button");
+  btns[0].addEventListener("click", function(){ STARTERS[current](); closeModal(); });
+  btns[1].addEventListener("click", home);
+  showModal(panel);
+}
+
+/* ==========================================================
+   GAME 1 — TABLE AGENTS
+   ========================================================== */
+var FACE = { red:"red", teal:"teal", neutral:"tan", assassin:"void" };
+var A = null;
+
+function startAgents(){
+  var first = coin(), second = other(first);
+  var kinds = [];
+  for(var i=0;i<9;i++) kinds.push(first);
+  for(var j=0;j<8;j++) kinds.push(second);
+  for(var k=0;k<7;k++) kinds.push("neutral");
+  kinds.push("assassin");
+  shuffle(kinds);
+  var picks = shuffle(WORDS.slice()).slice(0,25);
+  A = {
+    turn:first, phase:"clue", clueNum:2, taps:0, keyOn:false, over:false,
+    cards: picks.map(function(w,i){ return { word:w, kind:kinds[i], done:false }; })
+  };
+  var board = $("a-board");
+  board.innerHTML = "";
+  A.cards.forEach(function(c,i){
+    var b = el("button","cell");
+    b.type = "button";
+    b.appendChild(el("span", null, c.word));
+    b.addEventListener("click", function(){ aPick(i); });
+    board.appendChild(b);
+  });
+  aRender();
+}
+function aLeft(t){
+  return A.cards.filter(function(c){ return c.kind === t && !c.done; }).length;
+}
+function aPick(i){
+  if(A.over || A.phase !== "guess") return;
+  var c = A.cards[i];
+  if(c.done) return;
+  c.done = true;
+  A.taps--;
+
+  if(c.kind === "assassin"){
+    A.over = true; aRender();
+    win(other(A.turn), TEAM[A.turn] + " turned over the assassin.");
+    return;
+  }
+  if(aLeft("red") === 0 || aLeft("teal") === 0){
+    var w = aLeft("red") === 0 ? "red" : "teal";
+    A.over = true; aRender();
+    win(w, TEAM[w] + " found every one of their agents.");
+    return;
+  }
+  if(c.kind !== A.turn || A.taps <= 0) aEndTurn();
+  else aRender();
+}
+function aEndTurn(){
+  if(A.over) return;
+  A.turn = other(A.turn);
+  A.phase = "clue";
+  A.clueNum = 2;
+  A.keyOn = false;
+  aRender();
+}
+function aRender(){
+  var cells = $("a-board").children;
+  for(var i=0;i<A.cards.length;i++){
+    var c = A.cards[i], e = cells[i];
+    if(A.keyOn || c.done) e.setAttribute("data-face", FACE[c.kind]);
+    else e.removeAttribute("data-face");
+    e.classList.toggle("done", c.done);
+    e.disabled = c.done || A.keyOn || A.over || A.phase !== "guess";
+  }
+  $("a-board").classList.toggle("key", A.keyOn);
+
+  $("a-sred").textContent = aLeft("red");
+  $("a-steal").textContent = aLeft("teal");
+  $("a-tred").classList.toggle("spent", aLeft("red") === 0);
+  $("a-tteal").classList.toggle("spent", aLeft("teal") === 0);
+  pips(A.turn === "red" && !A.over, A.turn === "teal" && !A.over, "a-pred", "a-pteal");
+
+  var view = $("view-agents");
+  view.style.setProperty("--c", TVAR[A.turn]);
+
+  var banner = $("a-banner");
+  if(A.keyOn) banner.innerHTML = "Key card &mdash; don't let the guessers see";
+  else if(A.phase === "clue") banner.innerHTML = "<b>" + TEAM[A.turn] + "</b> gives the clue";
+  else banner.innerHTML = "<b>" + TEAM[A.turn] + "</b> guesses";
+
+  $("a-clue").hidden = A.phase !== "clue";
+  $("a-guess").hidden = A.phase !== "guess";
+
+  if(A.phase === "clue"){
+    var kb = $("a-key");
+    kb.classList.toggle("primary", true);
+    kb.textContent = A.keyOn ? "Let go to hide it" : "Hold to see the key";
+    $("a-num").textContent = A.clueNum;
+    $("a-minus").disabled = A.clueNum <= 1;
+    $("a-plus").disabled = A.clueNum >= 9;
+    $("a-hint").textContent = A.keyOn
+      ? "Say your one-word clue out loud, then let go."
+      : "Set the number to how many of your words the clue points at. Your partner gets " + (A.clueNum + 1) + " taps.";
+  } else {
+    $("a-tapstext").textContent = A.taps === 1 ? "1 tap left" : A.taps + " taps left";
+    var dots = $("a-tapdots");
+    dots.innerHTML = "";
+    var total = A.clueNum + 1;
+    for(var d=0; d<total; d++) dots.appendChild(el("i", "tapdot" + (d < total - A.taps ? " spent" : "")));
+  }
+}
+/* hold-to-reveal: pointer and keyboard, and it always lets go */
+(function(){
+  var kb = $("a-key");
+  function hold(on){
+    if(!A || A.over || A.phase !== "clue" || A.keyOn === on) return;
+    A.keyOn = on; aRender();
+  }
+  kb.addEventListener("pointerdown", function(e){ e.preventDefault(); try{ kb.setPointerCapture(e.pointerId); }catch(err){} hold(true); });
+  ["pointerup","pointercancel","pointerleave"].forEach(function(ev){ kb.addEventListener(ev, function(){ hold(false); }); });
+  kb.addEventListener("keydown", function(e){ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); hold(true); } });
+  kb.addEventListener("keyup", function(e){ if(e.key===" "||e.key==="Enter"){ hold(false); } });
+  kb.addEventListener("blur", function(){ hold(false); });
+  kb.addEventListener("contextmenu", function(e){ e.preventDefault(); });
+  document.addEventListener("visibilitychange", function(){ if(document.hidden) hold(false); });
+})();
+$("a-minus").addEventListener("click", function(){ if(A.clueNum > 1){ A.clueNum--; aRender(); } });
+$("a-plus").addEventListener("click", function(){ if(A.clueNum < 9){ A.clueNum++; aRender(); } });
+$("a-pass").addEventListener("click", function(){
+  if(A.over) return;
+  A.keyOn = false;
+  A.phase = "guess";
+  A.taps = A.clueNum + 1;
+  aRender();
+});
+$("a-end").addEventListener("click", aEndTurn);
+
+/* ==========================================================
+   GAME 2 — COWS & BULLS
+   ========================================================== */
+var C = null;
+
+function startCows(){
+  var digits = shuffle("0123456789".split("")).slice(0,4);
+  C = { secret:digits, turn:coin(), entry:[], log:[], counts:{red:0,teal:0}, over:false };
+  $("c-log").innerHTML = "";
+  cBuildEntry();
+  cBuildPad();
+  cRender();
+}
+function cBuildEntry(){
+  var host = $("c-entry");
+  host.innerHTML = "";
+  for(var i=0;i<4;i++) host.appendChild(el("div","slot"));
+}
+function cBuildPad(){
+  var host = $("c-pad");
+  host.innerHTML = "";
+  var order = ["1","2","3","4","5","6","7","8","9","del","0","go"];
+  order.forEach(function(k){
+    var b = el("button","key");
+    b.type = "button";
+    if(k === "del"){ b.classList.add("wide"); b.textContent = "Delete"; b.dataset.k = "del"; }
+    else if(k === "go"){ b.classList.add("wide","go"); b.textContent = "Guess"; b.dataset.k = "go"; }
+    else { b.textContent = k; b.dataset.k = k; }
+    b.addEventListener("click", function(){ cKey(b.dataset.k); });
+    host.appendChild(b);
+  });
+}
+function cKey(k){
+  if(C.over) return;
+  if(k === "del"){ C.entry.pop(); cRender(); return; }
+  if(k === "go"){ cGuess(); return; }
+  if(C.entry.length >= 4 || C.entry.indexOf(k) !== -1) return;
+  C.entry.push(k);
+  cRender();
+}
+function cGuess(){
+  if(C.entry.length !== 4) return;
+  var guess = C.entry.slice(), bulls = 0, cows = 0;
+  for(var i=0;i<4;i++){
+    if(guess[i] === C.secret[i]) bulls++;
+    else if(C.secret.indexOf(guess[i]) !== -1) cows++;
+  }
+  C.counts[C.turn]++;
+  C.log.unshift({ team:C.turn, guess:guess.join(""), bulls:bulls, cows:cows });
+  C.entry = [];
+  if(bulls === 4){
+    C.over = true; cRender();
+    win(C.turn, "Cracked it in " + C.counts[C.turn] + (C.counts[C.turn] === 1 ? " guess." : " guesses."));
+    return;
+  }
+  C.turn = other(C.turn);
+  cRender();
+}
+function cRender(){
+  $("view-cows").style.setProperty("--c", TVAR[C.turn]);
+  var slots = $("c-entry").children;
+  for(var i=0;i<4;i++){
+    var v = C.entry[i];
+    slots[i].textContent = v || "";
+    slots[i].classList.toggle("filled", !!v);
+    slots[i].classList.toggle("next", !v && i === C.entry.length && !C.over);
+  }
+  Array.prototype.forEach.call($("c-pad").children, function(b){
+    var k = b.dataset.k;
+    if(k === "go") b.disabled = C.entry.length !== 4 || C.over;
+    else if(k === "del") b.disabled = C.entry.length === 0 || C.over;
+    else b.disabled = C.over || C.entry.length >= 4 || C.entry.indexOf(k) !== -1;
+  });
+
+  $("c-gred").textContent = C.counts.red;
+  $("c-gteal").textContent = C.counts.teal;
+  pips(C.turn === "red" && !C.over, C.turn === "teal" && !C.over, "c-pred", "c-pteal");
+  $("c-banner").innerHTML = C.over ? "Solved" : "<b>" + TEAM[C.turn] + "</b> guesses — four different digits";
+
+  var log = $("c-log");
+  log.innerHTML = "";
+  if(!C.log.length){
+    log.appendChild(el("p","empty","No guesses yet. Try something plain like 1 2 3 4 and see what comes back."));
+  }
+  C.log.forEach(function(r){
+    var row = el("div","row");
+    row.style.setProperty("--tc", TVAR[r.team]);
+    row.appendChild(el("span","g", r.guess.split("").join(" ")));
+    var t = el("div","tally");
+    t.appendChild(el("span","tag bull" + (r.bulls ? "" : " zero"), r.bulls + " bull" + (r.bulls === 1 ? "" : "s")));
+    t.appendChild(el("span","tag cow" + (r.cows ? "" : " zero"), r.cows + " cow" + (r.cows === 1 ? "" : "s")));
+    row.appendChild(t);
+    log.appendChild(row);
+  });
+}
+
+/* ==========================================================
+   GAME 3 — BOMB RANGE
+   ========================================================== */
+var B = null;
+
+function startBomb(){
+  B = { secret: 1 + Math.floor(Math.random()*1000), lo:1, hi:1000, turn:coin(), entry:"", log:[], over:false };
+  $("b-log").innerHTML = "";
+  bBuildPad();
+  bRender();
+}
+function bBuildPad(){
+  var host = $("b-pad");
+  host.innerHTML = "";
+  ["1","2","3","4","5","6","7","8","9","del","0","go"].forEach(function(k){
+    var b = el("button","key");
+    b.type = "button";
+    if(k === "del"){ b.classList.add("wide"); b.textContent = "Delete"; }
+    else if(k === "go"){ b.classList.add("wide","go"); b.textContent = "Guess"; }
+    else b.textContent = k;
+    b.dataset.k = k;
+    b.addEventListener("click", function(){ bKey(k); });
+    host.appendChild(b);
+  });
+}
+function bKey(k){
+  if(B.over) return;
+  if(k === "del"){ B.entry = B.entry.slice(0,-1); bRender(); return; }
+  if(k === "go"){ bGuess(); return; }
+  if(B.entry.length >= 4) return;
+  if(B.entry === "" && k === "0") return;
+  B.entry += k;
+  bRender();
+}
+function bValid(){
+  if(B.entry === "") return false;
+  var n = parseInt(B.entry, 10);
+  return n >= B.lo && n <= B.hi;
+}
+function bGuess(){
+  if(!bValid()) return;
+  var n = parseInt(B.entry, 10);
+  B.entry = "";
+  if(n === B.secret){
+    B.log.unshift({ team:B.turn, n:n, verdict:"the bomb" });
+    B.over = true; bRender();
+    win(other(B.turn), TEAM[B.turn] + " guessed " + n + " and set off the bomb.", "var(--ochre)");
+    return;
+  }
+  if(n < B.secret){ B.lo = n + 1; B.log.unshift({ team:B.turn, n:n, verdict:"too low" }); }
+  else { B.hi = n - 1; B.log.unshift({ team:B.turn, n:n, verdict:"too high" }); }
+  B.turn = other(B.turn);
+  bRender();
+}
+function bRender(){
+  var view = $("view-bomb");
+  view.style.setProperty("--c", B.over ? "var(--ochre)" : TVAR[B.turn]);
+  $("b-lo").textContent = B.lo;
+  $("b-hi").textContent = B.hi;
+  var span = B.hi - B.lo + 1;
+  $("b-fill").style.left = ((B.lo - 1) / 1000 * 100) + "%";
+  $("b-fill").style.right = ((1000 - B.hi) / 1000 * 100) + "%";
+  $("b-left").innerHTML = "<b>" + span + "</b> number" + (span === 1 ? "" : "s") + " still alive";
+
+  $("b-guess").textContent = B.entry === "" ? "————" : B.entry;
+  $("b-guess").classList.toggle("blank", B.entry === "");
+
+  Array.prototype.forEach.call($("b-pad").children, function(b){
+    var k = b.dataset.k;
+    if(k === "go") b.disabled = !bValid() || B.over;
+    else if(k === "del") b.disabled = B.entry === "" || B.over;
+    else b.disabled = B.over || B.entry.length >= 4;
+  });
+
+  var msg;
+  if(B.over) msg = "Boom";
+  else if(span === 1) msg = "<b>" + TEAM[B.turn] + "</b> — only one number left. Sorry.";
+  else if(B.entry !== "" && !bValid()) msg = "Pick a number between " + B.lo + " and " + B.hi;
+  else msg = "<b>" + TEAM[B.turn] + "</b> guesses — anything but the bomb";
+  $("b-banner").innerHTML = msg;
+
+  var log = $("b-log");
+  log.innerHTML = "";
+  if(!B.log.length) log.appendChild(el("p","empty","Nobody has guessed yet. The bomb is somewhere in there."));
+  B.log.forEach(function(r){
+    var row = el("div","row");
+    row.style.setProperty("--tc", TVAR[r.team]);
+    row.appendChild(el("span","g", String(r.n)));
+    var t = el("div","tally");
+    t.appendChild(el("span","tag" + (r.verdict === "the bomb" ? " cow" : ""), r.verdict));
+    row.appendChild(t);
+    log.appendChild(row);
+  });
+}
+
+/* ==========================================================
+   GAME 4 — RACE TO 31
+   ========================================================== */
+var R = null;
+var GOAL = 31;
+
+function startRace(){
+  R = { total:0, turn:coin(), claims:new Array(GOAL).fill(null), over:false };
+  var host = $("r-ladder");
+  host.innerHTML = "";
+  for(var i=1;i<=GOAL;i++){
+    host.appendChild(el("div","rung" + (i === GOAL ? " goal" : ""), String(i)));
+  }
+  rRender();
+}
+function rAdd(n){
+  if(R.over || R.total + n > GOAL) return;
+  for(var i = R.total; i < R.total + n; i++) R.claims[i] = R.turn;
+  R.total += n;
+  if(R.total === GOAL){
+    R.over = true; rRender();
+    win(R.turn, "Landed exactly on 31.", "var(--moss)");
+    return;
+  }
+  R.turn = other(R.turn);
+  rRender();
+}
+function rRender(){
+  var view = $("view-race");
+  view.style.setProperty("--c", R.over ? "var(--moss)" : TVAR[R.turn]);
+  $("r-total").textContent = R.total;
+  var rungs = $("r-ladder").children;
+  for(var i=0;i<GOAL;i++){
+    rungs[i].classList.remove("red","teal");
+    if(R.claims[i]) rungs[i].classList.add(R.claims[i]);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("#view-race .add"), function(b){
+    var n = parseInt(b.dataset.n, 10);
+    b.disabled = R.over || R.total + n > GOAL;
+  });
+  $("r-banner").innerHTML = R.over ? "Finished" : "<b>" + TEAM[R.turn] + "</b> adds 1, 2 or 3";
+  var need = GOAL - R.total;
+  $("r-hint").textContent = R.over ? "" :
+    (need <= 3 ? "31 is " + need + " away. Somebody is about to win." : need + " to go.");
+}
+Array.prototype.forEach.call(document.querySelectorAll("#view-race .add"), function(b){
+  b.addEventListener("click", function(){ rAdd(parseInt(b.dataset.n, 10)); });
+});
+
+/* ========================================================== */
+home();
+
+})();
+</script>
+
+</body>
+</html>
