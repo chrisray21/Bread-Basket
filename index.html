@@ -28,7 +28,7 @@
     --teal:#0E6E78;     --teal-ink:#EEFAFB;
     --ochre:#A87516;
     --moss:#3F7A4E;
-    --tan:#C8B695;      --tan-ink:#2A2317;
+    --tan:#C8B695;      --tan-ink:#2A2317;  --tan-text:#7A6636;
     --void:#1C1B19;     --void-ink:#E8E3D8;
     --shadow:0 1px 0 rgba(26,31,29,.08), 0 3px 10px rgba(26,31,29,.06);
     --radius:6px;
@@ -42,7 +42,7 @@
       --red:#DE5F49;  --red-ink:#25100C;
       --teal:#2FA3A6; --teal-ink:#07211F;
       --ochre:#D9A63F; --moss:#69B37C;
-      --tan:#A2916E;  --tan-ink:#191509;
+      --tan:#A2916E;  --tan-ink:#191509; --tan-text:#C2B084;
       --void:#08090A; --void-ink:#8A8F8C;
       --shadow:0 1px 0 rgba(0,0,0,.30), 0 3px 12px rgba(0,0,0,.28);
     }
@@ -54,7 +54,7 @@
     --red:#DE5F49;  --red-ink:#25100C;
     --teal:#2FA3A6; --teal-ink:#07211F;
     --ochre:#D9A63F; --moss:#69B37C;
-    --tan:#A2916E;  --tan-ink:#191509;
+    --tan:#A2916E;  --tan-ink:#191509; --tan-text:#C2B084;
     --void:#08090A; --void-ink:#8A8F8C;
     --shadow:0 1px 0 rgba(0,0,0,.30), 0 3px 12px rgba(0,0,0,.28);
   }
@@ -241,6 +241,13 @@
     text-transform:uppercase;text-align:center;color:var(--muted);min-height:17px;
   }
   .banner b{color:var(--c);font-weight:700}
+  .banner.alert{
+    color:var(--c);font-weight:700;font-size:11.5px;letter-spacing:.1em;
+    background:color-mix(in srgb, var(--c) 12%, transparent);
+    border:1px solid color-mix(in srgb, var(--c) 38%, transparent);
+    border-radius:5px;padding:9px 10px 8px;
+  }
+  .banner.alert b{font-weight:700}
   .btn{
     font-family:"Courier Prime","Courier New",monospace;font-weight:700;font-size:12px;
     letter-spacing:.13em;text-transform:uppercase;padding:15px 10px;border-radius:var(--radius);
@@ -290,6 +297,22 @@
   .panel h3.big{font-size:42px}
   .panel .why{margin:0 0 18px;font-size:13.5px;color:var(--muted);line-height:1.5}
   .panel .btn{width:100%;margin-top:14px}
+  .panel.turnover{text-align:center;max-width:330px}
+  .panel.turnover h3{font-size:33px;margin-bottom:2px;line-height:.98}
+  .tocard{
+    margin:15px auto 13px;max-width:210px;padding:18px 12px 16px;border-radius:6px;
+    font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;font-weight:700;
+    font-size:30px;line-height:1;text-transform:uppercase;letter-spacing:.02em;
+    overflow-wrap:anywhere;
+  }
+  .tocard[data-face="red"]{background:var(--red);color:var(--red-ink)}
+  .tocard[data-face="teal"]{background:var(--teal);color:var(--teal-ink)}
+  .tocard[data-face="tan"]{background:var(--tan);color:var(--tan-ink)}
+  .panel.turnover .said{margin:0;font-size:15.5px;line-height:1.5;color:var(--ink)}
+  .panel.turnover .why{
+    margin:11px 0 0;font-size:13.5px;line-height:1.55;color:var(--muted);
+    padding-top:11px;border-top:1px solid var(--line);
+  }
   .panel .btn+.btn{margin-top:8px}
 
   /* ============================================================
@@ -346,6 +369,8 @@
   .tapdots{display:flex;gap:4px}
   .tapdot{width:10px;height:10px;border-radius:50%;background:var(--c)}
   .tapdot.spent{background:var(--line-strong)}
+  .tapdot.spare{background:transparent;border:2px solid var(--c)}
+  .tapdot.spare.spent{border-color:var(--line-strong)}
 
   /* ============================================================
      COWS & BULLS
@@ -547,9 +572,9 @@
       </div>
 
       <div class="ctl" id="a-guess" hidden>
-        <div class="taps"><span id="a-tapstext"></span><span class="tapdots" id="a-tapdots"></span></div>
+        <div class="taps" id="a-tapsrow"><span id="a-tapstext"></span><span class="tapdots" id="a-tapdots"></span></div>
         <button class="btn" id="a-end">End turn</button>
-        <p class="hint">Tap a word you think your partner meant. A wrong word ends the turn.</p>
+        <p class="hint" id="a-ghint"></p>
       </div>
     </section>
 
@@ -809,18 +834,21 @@ $("rulesbtn").addEventListener("click", function(){
 /* ==========================================================
    MODAL
    ========================================================== */
-var modal = null;
-function showModal(panel){
+var modal = null, modalSticky = false;
+function showModal(panel, sticky){
   closeModal();
+  modalSticky = !!sticky;
   modal = el("div","modal");
   modal.appendChild(panel);
-  modal.addEventListener("click", function(e){ if(e.target === modal) closeModal(); });
+  modal.addEventListener("click", function(e){
+    if(e.target === modal && !modalSticky) closeModal();
+  });
   document.body.appendChild(modal);
   var b = panel.querySelector("button");
   if(b) b.focus();
 }
-function closeModal(){ if(modal){ modal.remove(); modal = null; } }
-document.addEventListener("keydown", function(e){ if(e.key === "Escape") closeModal(); });
+function closeModal(){ if(modal){ modal.remove(); modal = null; } modalSticky = false; }
+document.addEventListener("keydown", function(e){ if(e.key === "Escape" && !modalSticky) closeModal(); });
 
 function win(team, why, accent){
   var panel = el("div","panel win");
@@ -851,7 +879,7 @@ function startAgents(){
   shuffle(kinds);
   var picks = shuffle(WORDS.slice()).slice(0,25);
   A = {
-    turn:first, phase:"clue", clueNum:2, taps:0, keyOn:false, over:false,
+    turn:first, phase:"clue", clueNum:2, taps:0, keyOn:false, over:false, ending:null,
     cards: picks.map(function(w,i){ return { word:w, kind:kinds[i], done:false }; })
   };
   var board = $("a-board");
@@ -886,11 +914,67 @@ function aPick(i){
     win(w, TEAM[w] + " found every one of their agents.");
     return;
   }
-  if(c.kind !== A.turn || A.taps <= 0) aEndTurn();
-  else aRender();
+  if(c.kind !== A.turn){
+    aTurnOver({
+      word: c.word,
+      face: FACE[c.kind],
+      msg: c.kind === "neutral"
+        ? "That word belongs to nobody. Turn over."
+        : "That word belongs to " + TEAM[other(A.turn)] + ". Turn over.",
+      said: c.kind === "neutral"
+        ? c.word + " isn't anybody's word."
+        : c.word + " is one of " + TEAM[other(A.turn)] + "'s words, so " + TEAM[other(A.turn)] + " gets it.",
+      tone: c.kind === "neutral" ? "var(--tan-text)" : TVAR[other(A.turn)]
+    });
+  } else if(A.taps <= 0){
+    aTurnOver({
+      msg: "Out of taps. Turn over.",
+      said: "You used all " + (A.clueNum + 1) + " of your taps.",
+      tone: TVAR[A.turn]
+    });
+  } else aRender();
+}
+
+/* Why the turn ended, held on screen until somebody says they've read it.
+   This used to dismiss itself after two seconds, which is no use to a
+   seven-year-old who looked up a moment too late: the turn had already
+   flipped and nothing on screen explained it. Nothing here is on a timer. */
+function aTurnOver(o){
+  A.ending = { msg:o.msg, tone:o.tone };
+  aRender();
+
+  var nxt = other(A.turn);
+  var panel = el("div","panel turnover");
+  panel.style.setProperty("--c", o.tone);
+
+  panel.appendChild(el("h3", null, "Your turn is over"));
+
+  if(o.word){
+    var card = el("div","tocard", o.word);
+    card.setAttribute("data-face", o.face);
+    panel.appendChild(card);
+  }
+  panel.appendChild(el("p","said", o.said));
+
+  /* name the taps they lost, so it reads as a rule and not a glitch */
+  var lost = Math.max(0, A.taps);
+  if(o.word){
+    panel.appendChild(el("p","why", lost > 0
+      ? "A wrong word ends your turn straight away, so you don't get your last "
+        + lost + (lost === 1 ? " tap." : " taps.")
+      : "A wrong word ends your turn straight away. That was your last tap anyway."));
+  }
+
+  var btn = el("button","btn primary", "Pass the phone to " + TEAM[nxt] + " \u2192");
+  btn.addEventListener("click", aEndTurn);
+  panel.appendChild(btn);
+
+  showModal(panel, true);
 }
 function aEndTurn(){
   if(A.over) return;
+  closeModal();
+  A.ending = null;
   A.turn = other(A.turn);
   A.phase = "clue";
   A.clueNum = 2;
@@ -904,7 +988,7 @@ function aRender(){
     if(A.keyOn || c.done) e.setAttribute("data-face", FACE[c.kind]);
     else e.removeAttribute("data-face");
     e.classList.toggle("done", c.done);
-    e.disabled = c.done || A.keyOn || A.over || A.phase !== "guess";
+    e.disabled = c.done || A.keyOn || A.over || A.phase !== "guess" || !!A.ending;
   }
   $("a-board").classList.toggle("key", A.keyOn);
 
@@ -918,9 +1002,13 @@ function aRender(){
   view.style.setProperty("--c", TVAR[A.turn]);
 
   var banner = $("a-banner");
-  if(A.keyOn) banner.innerHTML = "Key card &mdash; don't let the guessers see";
+  banner.classList.toggle("alert", !!A.ending);
+  if(A.ending){
+    banner.style.setProperty("--c", A.ending.tone);
+    banner.textContent = A.ending.msg;
+  } else if(A.keyOn) banner.innerHTML = "Key card &mdash; don't let the guessers see";
   else if(A.phase === "clue") banner.innerHTML = "<b>" + TEAM[A.turn] + "</b> gives the clue";
-  else banner.innerHTML = "<b>" + TEAM[A.turn] + "</b> guesses";
+  else banner.innerHTML = "<b>" + TEAM[A.turn] + "</b> guesses &middot; clue of " + A.clueNum;
 
   $("a-clue").hidden = A.phase !== "clue";
   $("a-guess").hidden = A.phase !== "guess";
@@ -940,7 +1028,16 @@ function aRender(){
     var dots = $("a-tapdots");
     dots.innerHTML = "";
     var total = A.clueNum + 1;
-    for(var d=0; d<total; d++) dots.appendChild(el("i", "tapdot" + (d < total - A.taps ? " spent" : "")));
+    for(var d=0; d<total; d++){
+      dots.appendChild(el("i", "tapdot"
+        + (d < total - A.taps ? " spent" : "")
+        + (d === total - 1 ? " spare" : "")));
+    }
+    $("a-tapsrow").hidden = !!A.ending;
+    $("a-end").textContent = A.ending ? "Pass the phone \u2192" : "End turn";
+    $("a-ghint").textContent = "Clue of " + A.clueNum + ", so " + A.clueNum
+      + (A.clueNum === 1 ? " tap" : " taps") + " plus 1 spare (the hollow dot). "
+      + "A wrong word ends the turn.";
   }
 }
 /* hold-to-reveal: pointer and keyboard, and it always lets go */
@@ -967,7 +1064,7 @@ $("a-pass").addEventListener("click", function(){
   A.taps = A.clueNum + 1;
   aRender();
 });
-$("a-end").addEventListener("click", aEndTurn);
+$("a-end").addEventListener("click", function(){ if(!A.ending) aEndTurn(); });
 
 /* ==========================================================
    GAME 2 — COWS & BULLS

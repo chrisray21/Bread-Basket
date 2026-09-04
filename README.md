@@ -33,6 +33,31 @@ before passing. The guessers get exactly N+1 taps, shown as dots that fill in as
 they're spent, and the turn ends by itself when they run out. A wrong colour
 ends it immediately.
 
+The guess screen states the clue number ("Red guesses · clue of 3") and marks
+the spare tap as a hollow dot rather than a filled one. That is not decoration:
+without it the guessers only ever saw a tap count one higher than the number
+they were told out loud, which reads as the app miscounting rather than as the
+bonus guess the rules grant them.
+
+**Table Agents — the turn-over panel.** A wrong tap ends the turn and forfeits
+whatever taps were left. That is correct Codenames, but the first build flipped
+straight to the other team with no explanation, so it felt like the app had
+stolen the remaining taps. The second attempt showed a banner for two seconds,
+which was no better: a child who looks up a moment late sees a flipped turn and
+no reason for it.
+
+**Nothing about this panel is on a timer.** It shows the word that was tapped in
+the colour it turned out to be, says whose it was in plain words ("OWL is one of
+Red's words, so Red gets it"), and names the exact cost ("you don't get your
+last 3 taps") so the outcome reads as a rule rather than a glitch. It cannot be
+dismissed by tapping the backdrop or pressing Escape — only the "Pass the phone
+to Red" button ends the turn, which doubles as the instruction for what to do
+next. The heading is "Your turn is over" rather than "Turn over", which a young
+reader can misread as an instruction to flip something.
+
+That stickiness is what `showModal(panel, sticky)` exists for; every other modal
+in the app stays dismissible.
+
 **Rules that teach rather than instruct.** Race to 31 deliberately withholds its
 solution and tells players a pattern exists. Bomb Range likewise says nothing
 about optimal play. Spoiling either would remove the reason to play twice.
@@ -53,7 +78,7 @@ and sparks that fades after 400ms.
 
 ## Testing
 
-`test.py` drives the real page in headless Chromium and runs 50 checks across
+`test.py` drives the real page in headless Chromium and runs 68 checks across
 all four games.
 
 ```

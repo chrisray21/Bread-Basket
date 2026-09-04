@@ -70,6 +70,11 @@ with sync_playwright() as p:
     check(pg.locator("#a-key").count() == 1 and pg.locator("#a-clue").is_hidden(), "key button gone after pass")
     check("4 TAPS LEFT" in pg.locator("#a-tapstext").inner_text().upper(), "N+1 = 4 taps granted")
     check(pg.locator("#a-tapdots .tapdot").count() == 4, "4 tap dots")
+    check(pg.locator("#a-tapdots .tapdot.spare").count() == 1, "exactly one dot marked as the spare")
+    check("CLUE OF 3" in pg.locator("#a-banner").inner_text().upper(),
+          "guessers are told the clue number")
+    check("3 TAPS PLUS 1 SPARE" in pg.locator("#a-ghint").inner_text().upper(),
+          "hint spells out N + 1")
 
     # tap 4 correct cards -> turn must auto-end
     mine = [i for i, f in enumerate(faces) if f == first]
@@ -80,18 +85,56 @@ with sync_playwright() as p:
             want = "1 TAP LEFT" if (3 - n) == 1 else "%d TAPS LEFT" % (3 - n)
             check(want in pg.locator("#a-tapstext").inner_text().upper(),
                   "tap %d leaves %d" % (n + 1, 3 - n))
-    pg.wait_for_timeout(120)
-    check(pg.locator("#a-clue").is_visible(), "budget exhausted -> turn auto-ends")
-    check(first not in pg.locator("#a-banner").inner_text().lower(), "turn passed to the other team")
+    pg.wait_for_timeout(150)
+    check(pg.locator(".modal .panel.turnover").count() == 1,
+          "running out of taps shows the turn-over panel")
+    check("USED ALL 4" in pg.locator(".modal .panel.turnover .said").inner_text().upper(),
+          "panel says all 4 taps were used")
     pg.screenshot(path="shot-agents.png")
+    pg.locator(".modal .panel.turnover .btn").click()
+    pg.wait_for_timeout(150)
+    check(pg.locator("#a-clue").is_visible(), "budget exhausted -> turn ends on acknowledgement")
+    check(first not in pg.locator("#a-banner").inner_text().lower(), "turn passed to the other team")
 
-    # wrong-colour tap ends turn immediately
+    # a bystander explains itself and WAITS to be dismissed
     second = "teal" if first == "red" else "red"
     pg.locator("#a-pass").click()
     theirs_wrong = [i for i, f in enumerate(faces) if f == "tan"][0]
+    bystander_word = pg.locator("#a-board .cell").nth(theirs_wrong).inner_text().strip().upper()
     pg.locator("#a-board .cell").nth(theirs_wrong).click()
     pg.wait_for_timeout(150)
-    check(pg.locator("#a-clue").is_visible(), "bystander tap ends the turn at once")
+    panel = pg.locator(".modal .panel.turnover")
+    check(panel.count() == 1, "turn-over panel shown on a wrong tap")
+    check(panel.locator(".tocard").inner_text().strip().upper() == bystander_word,
+          "panel shows the word that was tapped")
+    check(panel.locator('.tocard[data-face="tan"]').count() == 1,
+          "word is shown in the colour it turned out to be")
+    check("ISN'T ANYBODY" in panel.locator(".said").inner_text().upper(),
+          "panel explains whose word it was")
+    check("STRAIGHT AWAY" in panel.locator(".why").inner_text().upper(),
+          "panel explains why the remaining taps are gone")
+    check(pg.locator("#a-clue").is_hidden(), "turn has not flipped yet")
+    pg.screenshot(path="shot-turnover.png")
+
+    # the whole point: it must NOT disappear on its own
+    pg.wait_for_timeout(4000)
+    check(pg.locator(".modal .panel.turnover").count() == 1,
+          "panel is still there after 4s (no auto-dismiss)")
+    # and a stray tap on the backdrop must not dismiss it either
+    pg.mouse.click(8, 8)
+    pg.wait_for_timeout(120)
+    check(pg.locator(".modal .panel.turnover").count() == 1,
+          "backdrop tap does not dismiss it")
+    pg.keyboard.press("Escape")
+    pg.wait_for_timeout(120)
+    check(pg.locator(".modal .panel.turnover").count() == 1, "Escape does not dismiss it")
+
+    check("PASS THE PHONE" in panel.locator(".btn").inner_text().upper(),
+          "button names the handover")
+    panel.locator(".btn").click()
+    pg.wait_for_timeout(150)
+    check(pg.locator("#a-clue").is_visible(), "turn flips only when acknowledged")
+    check(pg.locator(".modal").count() == 0, "panel cleared after the flip")
 
     # assassin ends the game
     pg.locator("#a-pass").click()
