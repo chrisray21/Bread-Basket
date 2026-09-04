@@ -37,11 +37,23 @@ ends it immediately.
 solution and tells players a pattern exists. Bomb Range likewise says nothing
 about optimal play. Spoiling either would remove the reason to play twice.
 
+**Bomb Range — the explosion.** Landing on the secret number fires a canvas
+particle burst from the middle of the range box: white-hot core, expanding
+shockwave, ~135 embers with motion-blurred tails under gravity and drag, smoke
+puffs, and a dark scorch veil over the whole page so the fire reads on both the
+light and dark themes. The screen shakes for half a second. The win panel is
+deliberately held back until a second into the blast — the explosion is the
+result, and announcing the loser over the top of it would waste it. The origin
+is clamped into the middle band of the viewport, because the range box sits high
+on a phone and a blast centred on it loses its top half off-screen. Under
+`prefers-reduced-motion` the whole thing collapses to one still frame of scorch
+and sparks that fades after 400ms.
+
 **Two-tap New game.** One stray thumb should not wipe a live board.
 
 ## Testing
 
-`test.py` drives the real page in headless Chromium and runs 44 checks across
+`test.py` drives the real page in headless Chromium and runs 50 checks across
 all four games.
 
 ```

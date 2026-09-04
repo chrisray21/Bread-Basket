@@ -459,6 +459,21 @@
   .add:disabled{background:var(--surface);color:var(--faint);border-color:var(--line);cursor:default}
   .add:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 
+  /* ---- Bomb Range: the explosion ---- */
+  .boom{position:fixed;inset:0;z-index:30;pointer-events:none}
+  @keyframes shake{
+    0%{transform:translate(0,0)}
+    12%{transform:translate(-5px,3px)}
+    24%{transform:translate(6px,-3px)}
+    36%{transform:translate(-4px,-2px)}
+    48%{transform:translate(4px,3px)}
+    60%{transform:translate(-3px,1px)}
+    72%{transform:translate(2px,-2px)}
+    86%{transform:translate(-1px,1px)}
+    100%{transform:translate(0,0)}
+  }
+  #app.shake{animation:shake .5s cubic-bezier(.36,.07,.19,.97)}
+
   /* very small phones: tighten the chrome so the game name still fits */
   @media (max-width:359px){
     #topbar{padding:12px 12px 10px;gap:6px}
@@ -753,6 +768,7 @@ function open(key){
 }
 function home(){
   current = null;
+  stopBoom();
   document.documentElement.style.setProperty("--c", "var(--ink)");
   GAMES.forEach(function(x){ $("view-"+x.key).hidden = true; });
   $("view-home").hidden = false;
@@ -1050,11 +1066,196 @@ function cRender(){
 }
 
 /* ==========================================================
+   THE EXPLOSION — canvas particle burst for Bomb Range.
+   Fires from the middle of the range box when a team lands
+   on the secret number, then hands over to the win panel.
+   ========================================================== */
+var boomRAF = null, boomCanvas = null;
+
+function stopBoom(){
+  if(boomRAF){ cancelAnimationFrame(boomRAF); boomRAF = null; }
+  if(boomCanvas){ boomCanvas.remove(); boomCanvas = null; }
+  $("app").classList.remove("shake");
+}
+
+function boom(ox, oy, done){
+  stopBoom();
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var cv = el("canvas","boom");
+  cv.id = "b-boom";
+  document.body.appendChild(cv);
+  boomCanvas = cv;
+
+  var W = window.innerWidth, H = window.innerHeight;
+
+  /* keep the fireball inside the frame: the range box sits high on a phone,
+     and a blast centred on it loses its top half off-screen */
+  ox = Math.min(Math.max(ox, W * 0.2), W * 0.8);
+  oy = Math.min(Math.max(oy, H * 0.34), H * 0.58);
+
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + "px"; cv.style.height = H + "px";
+  var g = cv.getContext("2d");
+  g.scale(dpr, dpr);
+
+  var EMBER = ["#FFF6D2","#FFD34E","#F79A22","#E8601F","#C23A22"];
+  var reach = Math.max(W, H);
+  var handedOver = false;
+  function handOver(){ if(!handedOver){ handedOver = true; done(); } }
+
+  /* reduced motion: one still frame of scorch and sparks, then fade */
+  if(reduce){
+    g.fillStyle = "rgba(24,14,8,.42)";
+    g.fillRect(0,0,W,H);
+    g.strokeStyle = "rgba(255,214,110,.85)"; g.lineWidth = 6;
+    g.beginPath(); g.arc(ox,oy,Math.min(reach*.28,190),0,Math.PI*2); g.stroke();
+    for(var q=0;q<48;q++){
+      var a = q/48*Math.PI*2, d = 40 + (q%7)*22;
+      g.fillStyle = EMBER[q%EMBER.length];
+      g.beginPath(); g.arc(ox+Math.cos(a)*d, oy+Math.sin(a)*d, 3.4, 0, Math.PI*2); g.fill();
+    }
+    setTimeout(handOver, 420);
+    setTimeout(stopBoom, 900);
+    return;
+  }
+
+  $("app").classList.add("shake");
+
+  /* embers fly out, drag down, and burn from white through to ash */
+  var embers = [], i, a, sp;
+  var N = 120;
+  for(i=0;i<N;i++){
+    a  = Math.random() * Math.PI * 2;
+    sp = 110 + Math.pow(Math.random(), .55) * 520;
+    embers.push({
+      x:ox, y:oy,
+      vx:Math.cos(a)*sp, vy:Math.sin(a)*sp - 60,
+      r:1.4 + Math.random()*3.4,
+      life:.55 + Math.random()*.85,
+      age:0,
+      c:EMBER[(Math.random()*EMBER.length)|0],
+      tail:.4 + Math.random()*.6
+    });
+  }
+  /* a few heavy chunks that arc further and fall harder */
+  for(i=0;i<14;i++){
+    a  = Math.random() * Math.PI * 2;
+    sp = 320 + Math.random()*380;
+    embers.push({
+      x:ox, y:oy, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp - 140,
+      r:3.2 + Math.random()*2.6, life:1.1 + Math.random()*.5, age:0,
+      c:EMBER[3 + ((Math.random()*2)|0)], tail:1
+    });
+  }
+
+  var smoke = [];
+  for(i=0;i<30;i++){
+    a  = Math.random() * Math.PI * 2;
+    sp = 30 + Math.random()*170;
+    smoke.push({
+      x:ox + Math.cos(a)*12, y:oy + Math.sin(a)*12,
+      vx:Math.cos(a)*sp, vy:Math.sin(a)*sp - 34,
+      r:14 + Math.random()*30, grow:36 + Math.random()*60,
+      life:.9 + Math.random()*.8, age:0
+    });
+  }
+
+  var DUR = 1600, t0 = null;
+
+  function frame(ts){
+    if(t0 === null) t0 = ts;
+    var t  = ts - t0;             /* ms since the bang */
+    var dt = Math.min(0.034, (t - (frame.last || 0)) / 1000);
+    frame.last = t;
+    var s = t / 1000;
+
+    g.setTransform(dpr,0,0,dpr,0,0);
+    g.clearRect(0,0,W,H);
+
+    /* scorch: darken the whole screen so fire reads on light and dark alike */
+    var veil = s < .1 ? s/.1 * .5 : Math.max(0, .5 * (1 - (s - .1) / .95));
+    if(veil > 0){
+      g.globalCompositeOperation = "source-over";
+      g.fillStyle = "rgba(18,11,6," + veil.toFixed(3) + ")";
+      g.fillRect(0,0,W,H);
+    }
+
+    /* smoke */
+    g.globalCompositeOperation = "source-over";
+    smoke.forEach(function(p){
+      p.age += dt;
+      if(p.age > p.life) return;
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      p.vx *= .93; p.vy = p.vy * .93 - 22 * dt;
+      var k = p.age / p.life;
+      g.globalAlpha = .34 * (1 - k);
+      g.fillStyle = "#2A211A";
+      g.beginPath(); g.arc(p.x, p.y, p.r + p.grow * k, 0, Math.PI*2); g.fill();
+    });
+    g.globalAlpha = 1;
+
+    /* shockwave ring */
+    if(s < .72){
+      var k2 = s / .72;
+      g.strokeStyle = "rgba(255,226,150," + (0.85 * (1 - k2)).toFixed(3) + ")";
+      g.lineWidth = 20 * (1 - k2) + 1;
+      g.beginPath(); g.arc(ox, oy, reach * .78 * Math.pow(k2, .55), 0, Math.PI*2); g.stroke();
+    }
+
+    /* embers, drawn additively so overlaps glow */
+    g.globalCompositeOperation = "lighter";
+    embers.forEach(function(p){
+      p.age += dt;
+      if(p.age > p.life) return;
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      p.vy += 480 * dt;
+      var drag = Math.pow(0.12, dt);
+      p.vx *= drag; p.vy *= drag;
+      var k3 = p.age / p.life;
+      g.globalAlpha = Math.max(0, 1 - k3 * k3);
+      g.strokeStyle = p.c;
+      g.lineCap = "round";
+      g.lineWidth = p.r * (1 - k3 * .55);
+      g.beginPath();
+      g.moveTo(p.x, p.y);
+      g.lineTo(p.x - p.vx * 0.016 * p.tail, p.y - p.vy * 0.016 * p.tail);
+      g.stroke();
+    });
+    g.globalAlpha = 1;
+
+    /* the white-hot core of the blast */
+    if(s < .34){
+      var k4 = s / .34;
+      var rad = 14 + 150 * Math.pow(k4, .4);
+      var grd = g.createRadialGradient(ox, oy, 0, ox, oy, rad);
+      var al = (1 - k4);
+      grd.addColorStop(0,   "rgba(255,252,240," + al.toFixed(3) + ")");
+      grd.addColorStop(.45, "rgba(255,196,74,"  + (al * .8).toFixed(3) + ")");
+      grd.addColorStop(1,   "rgba(226,90,30,0)");
+      g.fillStyle = grd;
+      g.beginPath(); g.arc(ox, oy, rad, 0, Math.PI*2); g.fill();
+    }
+    g.globalCompositeOperation = "source-over";
+
+    if(t > 1000) handOver();
+    if(t > DUR - 320) cv.style.opacity = Math.max(0, (DUR - t) / 320);
+
+    if(t < DUR) boomRAF = requestAnimationFrame(frame);
+    else { boomRAF = null; handOver(); stopBoom(); }
+  }
+  boomRAF = requestAnimationFrame(frame);
+  setTimeout(function(){ $("app").classList.remove("shake"); }, 560);
+}
+
+/* ==========================================================
    GAME 3 — BOMB RANGE
    ========================================================== */
 var B = null;
 
 function startBomb(){
+  stopBoom();
   B = { secret: 1 + Math.floor(Math.random()*1000), lo:1, hi:1000, turn:coin(), entry:"", log:[], over:false };
   $("b-log").innerHTML = "";
   bBuildPad();
@@ -1095,7 +1296,11 @@ function bGuess(){
   if(n === B.secret){
     B.log.unshift({ team:B.turn, n:n, verdict:"the bomb" });
     B.over = true; bRender();
-    win(other(B.turn), TEAM[B.turn] + " guessed " + n + " and set off the bomb.", "var(--ochre)");
+    var r = document.querySelector("#view-bomb .rangebox").getBoundingClientRect();
+    var loser = B.turn;
+    boom(r.left + r.width / 2, r.top + r.height / 2, function(){
+      win(other(loser), TEAM[loser] + " guessed " + n + " and set off the bomb.", "var(--ochre)");
+    });
     return;
   }
   if(n < B.secret){ B.lo = n + 1; B.log.unshift({ team:B.turn, n:n, verdict:"too low" }); }
