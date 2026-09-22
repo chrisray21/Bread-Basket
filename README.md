@@ -1,7 +1,8 @@
 # Bread Basket
 
-Four pass-and-play games for four people sitting at a restaurant table waiting
-for food. One phone, passed around. Two teams of two.
+Five games for four people sitting at a restaurant table waiting for food.
+One phone, passed around. Four of them are two teams of two; the trivia game
+is solo.
 
 Open `index.html` in any browser. That is the whole thing — one self-contained
 file, no build step, no server, no dependencies. Once the page has loaded it
@@ -15,6 +16,7 @@ needs no connection, so it works in the car with no signal.
 | **Cows & Bulls** | Deduction | 5–10 min | 9+ |
 | **Bomb Range** | Nerve | 3–5 min | 6+ |
 | **Race to 31** | Strategy | 2 min | 6+ |
+| **Seventh Inning** | Baseball trivia (solo) | 5 min | 9+ |
 
 Every game carries a "How to play" panel written for a 10-year-old reader:
 short sentences, plain words, and a worked example. The rules are also reachable
@@ -74,12 +76,32 @@ on a phone and a blast centred on it loses its top half off-screen. Under
 `prefers-reduced-motion` the whole thing collapses to one still frame of scorch
 and sparks that fades after 400ms.
 
+**Seventh Inning — questions that cannot go stale.** The app is offline and
+never updates itself, so anything phrased in the present tense rots. "Cal
+Raleigh plays for which team?" is wrong the day he is traded. Every question in
+the "Today's Game" category therefore names its year ("Which team won the 2025
+World Series?", "Since 2023, in extra innings...") — turning a fact that decays
+into a historical one that doesn't. The handful that are genuinely timeless
+(where a player was born, a team he has already left) carry an explicit
+`"t": true` flag. **The test suite enforces this**: any "now" question with
+neither a four-digit year nor the timeless flag fails the build. That check is
+the reason this category is safe to keep.
+
+Recent-season facts were verified against sources at the time of writing rather
+than recalled. The rest of the bank is history, teams and ballparks, which is
+stable for decades.
+
+**Seventh Inning — explain every answer, not just the wrong ones.** A correct
+answer still gets its sentence of context. Scoring a kid is easy; teaching him
+something in the ten seconds he is already looking at the screen is the actual
+point.
+
 **Two-tap New game.** One stray thumb should not wipe a live board.
 
 ## Testing
 
-`test.py` drives the real page in headless Chromium and runs 68 checks across
-all four games.
+`test.py` drives the real page in headless Chromium and runs 89 checks across
+all five games.
 
 ```
 pip install playwright

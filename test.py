@@ -28,8 +28,8 @@ with sync_playwright() as p:
     pg.wait_for_timeout(600)
 
     print("\n== HOME ==")
-    check(pg.locator("#games .game").count() == 4, "4 game cards")
-    check(pg.locator("#games .play").count() == 4, "4 play buttons")
+    check(pg.locator("#games .game").count() == 5, "5 game cards")
+    check(pg.locator("#games .play").count() == 5, "5 play buttons")
     pg.screenshot(path="shot-home.png", full_page=True)
 
     # ---------------- TABLE AGENTS ----------------
@@ -192,6 +192,64 @@ with sync_playwright() as p:
     pg.locator(".modal .btn").nth(1).click()
     pg.wait_for_timeout(200)
 
+    # ---------------- SEVENTH INNING ----------------
+    print("\n== SEVENTH INNING ==")
+    import re, json, collections
+    src = open("index.html").read()
+    m = re.search(r"var TRIVIA = \[\n(.*?)\n\];", src, re.S)
+    rows = [json.loads(l.rstrip().rstrip(",")) for l in m.group(1).split("\n") if l.strip()]
+    check(len(rows) >= 140, "%d questions in the bank" % len(rows))
+    check(all(len(r["a"]) == 4 for r in rows), "every question has exactly 4 options")
+    check(all(len(set(r["a"])) == 4 for r in rows), "no duplicate options within a question")
+    check(all(0 <= r["k"] <= 3 for r in rows), "every answer key is in range")
+    check(all(r["e"].strip() for r in rows), "every question has an explanation")
+    check(len(set(r["q"] for r in rows)) == len(rows), "no duplicate questions")
+    # a recent-era question must name a year or be explicitly flagged timeless,
+    # otherwise it silently becomes wrong as seasons pass
+    rot = [r["q"] for r in rows
+           if r["c"] == "now" and not r.get("t") and not re.search(r"(19|20)\d\d", r["q"])]
+    check(not rot, "every 'Today's Game' question is year-anchored or flagged timeless")
+    for r in rot:
+        print("       ->", r)
+
+    tri = [n.upper() for n in pg.locator("#games h2").all_inner_texts()].index("SEVENTH INNING")
+    pg.locator("#games .game").nth(tri).locator(".play").click()
+    pg.wait_for_timeout(280)
+    check(pg.locator("#t-answers .ans").count() == 4, "four answer buttons")
+    check(pg.locator("#t-pips .qpip").count() == 10, "ten progress pips")
+    check(pg.locator("#t-explain").is_hidden(), "explanation hidden before answering")
+    check(pg.locator("#t-next").is_hidden(), "Next hidden before answering")
+    check(bool(pg.locator("#t-cat").inner_text().strip()), "category label shown")
+
+    for n in range(10):
+        check(bool(pg.locator("#t-q").inner_text().strip()), "Q%d has text" % (n + 1)) if n < 2 else None
+        pg.locator("#t-answers .ans").nth(0).click()
+        pg.wait_for_timeout(70)
+        if n == 0:
+            check(pg.locator("#t-answers .ans.right").count() == 1, "exactly one option marked correct")
+            check(pg.locator("#t-answers .ans:disabled").count() == 4, "all options lock after answering")
+            check(pg.locator("#t-explain").is_visible(), "explanation appears")
+            before = pg.locator("#t-score").inner_text()
+            pg.locator("#t-answers .ans").nth(1).click(force=True)
+            pg.wait_for_timeout(60)
+            check(pg.locator("#t-score").inner_text() == before, "a second tap cannot change the score")
+            pg.screenshot(path="shot-trivia.png")
+        if pg.locator("#t-answers .ans.wrong").count():
+            check("THE ANSWER IS" in pg.locator("#t-explain").inner_text().upper(),
+                  "a wrong answer states the right one") if n == 0 else None
+        if n == 9:
+            check("SEE HOW YOU DID" in pg.locator("#t-next").inner_text().upper(),
+                  "final question's button reads differently")
+        pg.locator("#t-next").click()
+        pg.wait_for_timeout(110)
+
+    check(pg.locator(".modal .panel.win").count() == 1, "results panel after 10 questions")
+    check("OUT OF 10" in pg.locator(".modal h3").inner_text().upper(), "score shown out of 10")
+    check(pg.locator(".modal .best").count() == 1, "best-score line present")
+    pg.screenshot(path="shot-trivia-result.png")
+    pg.locator(".modal .btn").nth(1).click()
+    pg.wait_for_timeout(200)
+
     # ---------------- BOMB RANGE ----------------
     print("\n== BOMB RANGE ==")
     pg.locator("#games .game").nth(2).locator(".play").click()
@@ -242,7 +300,10 @@ with sync_playwright() as p:
 
     # ---------------- RACE TO 31 ----------------
     print("\n== RACE TO 31 ==")
-    pg.locator("#games .game").nth(3).locator(".play").click()
+    def open_card(name):
+        titles = [t.strip().upper() for t in pg.locator("#games h2").all_inner_texts()]
+        pg.locator("#games .game").nth(titles.index(name)).locator(".play").click()
+    open_card("RACE TO 31")
     pg.wait_for_timeout(250)
     check(pg.locator("#r-ladder .rung").count() == 31, "31 rungs")
     check(pg.locator("#r-total").inner_text() == "0", "total starts at 0")
@@ -261,7 +322,7 @@ with sync_playwright() as p:
     pg.wait_for_timeout(150)
 
     # overflow guard: 29 + 3 must be blocked
-    pg.locator("#games .game").nth(3).locator(".play").click()
+    open_card("RACE TO 31")
     pg.wait_for_timeout(200)
     for _ in range(29):
         pg.locator('#view-race .add[data-n="1"]').click()

@@ -27,7 +27,7 @@
     --red:#B83A2B;      --red-ink:#FFF3EF;
     --teal:#0E6E78;     --teal-ink:#EEFAFB;
     --ochre:#A87516;
-    --moss:#3F7A4E;
+    --moss:#3F7A4E;  --navy:#2B4C7E;
     --tan:#C8B695;      --tan-ink:#2A2317;  --tan-text:#7A6636;
     --void:#1C1B19;     --void-ink:#E8E3D8;
     --shadow:0 1px 0 rgba(26,31,29,.08), 0 3px 10px rgba(26,31,29,.06);
@@ -41,7 +41,7 @@
       --line:#2E3639; --line-strong:#414A4D;
       --red:#DE5F49;  --red-ink:#25100C;
       --teal:#2FA3A6; --teal-ink:#07211F;
-      --ochre:#D9A63F; --moss:#69B37C;
+      --ochre:#D9A63F; --moss:#69B37C; --navy:#7FA9DF;
       --tan:#A2916E;  --tan-ink:#191509; --tan-text:#C2B084;
       --void:#08090A; --void-ink:#8A8F8C;
       --shadow:0 1px 0 rgba(0,0,0,.30), 0 3px 12px rgba(0,0,0,.28);
@@ -53,7 +53,7 @@
     --line:#2E3639; --line-strong:#414A4D;
     --red:#DE5F49;  --red-ink:#25100C;
     --teal:#2FA3A6; --teal-ink:#07211F;
-    --ochre:#D9A63F; --moss:#69B37C;
+    --ochre:#D9A63F; --moss:#69B37C; --navy:#7FA9DF;
     --tan:#A2916E;  --tan-ink:#191509; --tan-text:#C2B084;
     --void:#08090A; --void-ink:#8A8F8C;
     --shadow:0 1px 0 rgba(0,0,0,.30), 0 3px 12px rgba(0,0,0,.28);
@@ -88,13 +88,15 @@
   .mark span{color:var(--faint)}
   #gametitle{
     font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;font-weight:700;
-    font-size:19px;text-transform:uppercase;letter-spacing:.03em;line-height:1;
+    /* clamps so a long name like SEVENTH INNING still fits when the condensed
+       webfont has not loaded and a wide fallback is standing in for it */
+    font-size:clamp(14px,4.2vw,19px);text-transform:uppercase;letter-spacing:.02em;line-height:1;
     color:var(--c);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
   .barbtns{display:flex;gap:12px;align-items:center;flex:none}
   .ghost{
     font-family:"Courier Prime","Courier New",monospace;font-weight:700;
-    font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+    font-size:clamp(9px,2.6vw,10.5px);letter-spacing:.11em;text-transform:uppercase;
     background:none;border:0;color:var(--muted);cursor:pointer;padding:6px 0;
     text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-strong);
     white-space:nowrap;
@@ -484,6 +486,70 @@
   .add:disabled{background:var(--surface);color:var(--faint);border-color:var(--line);cursor:default}
   .add:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 
+  /* ============================================================
+     SEVENTH INNING
+     ============================================================ */
+  #view-trivia{gap:13px}
+  .tstat{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:14px}
+  .qpips{display:flex;gap:5px;flex-wrap:wrap}
+  .qpip{width:9px;height:9px;border-radius:50%;background:var(--line);transition:background .2s,transform .2s}
+  .qpip.right{background:var(--moss)}
+  .qpip.wrong{background:var(--red)}
+  .qpip.now{background:var(--c);transform:scale(1.3)}
+  .tscore{
+    font-family:"Courier Prime","Courier New",monospace;font-size:10.5px;font-weight:700;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--muted);white-space:nowrap;
+  }
+  .tscore b{color:var(--c)}
+  .qcard{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:15px 16px 17px;box-shadow:var(--shadow);
+  }
+  .qcat{
+    font-family:"Courier Prime","Courier New",monospace;font-weight:700;font-size:10px;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--c);
+  }
+  .qtext{
+    margin:8px 0 0;font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;font-weight:600;
+    font-size:clamp(21px,5.4vw,27px);line-height:1.14;text-wrap:balance;
+  }
+  .answers{display:flex;flex-direction:column;gap:8px}
+  .ans{
+    display:flex;gap:11px;align-items:flex-start;text-align:left;width:100%;
+    padding:13px 13px;border-radius:var(--radius);border:1.5px solid var(--line);
+    background:var(--surface);color:var(--ink);cursor:pointer;
+    font-family:"Karla","Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.35;
+    transition:border-color .15s,background .2s,opacity .2s;
+  }
+  .ans .lt{
+    flex:none;width:23px;height:23px;display:grid;place-items:center;border-radius:4px;
+    border:1.5px solid var(--line-strong);
+    font-family:"Courier Prime","Courier New",monospace;font-weight:700;font-size:12px;
+    color:var(--muted);margin-top:1px;
+  }
+  .ans:hover:not(:disabled){border-color:var(--c)}
+  .ans:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .ans:disabled{cursor:default}
+  .ans.faded{opacity:.42}
+  .ans.right{background:color-mix(in srgb, var(--moss) 15%, var(--surface));border-color:var(--moss)}
+  .ans.right .lt{border-color:var(--moss);color:var(--moss)}
+  .ans.wrong{background:color-mix(in srgb, var(--red) 13%, var(--surface));border-color:var(--red)}
+  .ans.wrong .lt{border-color:var(--red);color:var(--red)}
+  .explain{
+    border-left:3px solid var(--e);
+    background:color-mix(in srgb, var(--e) 8%, transparent);
+    border-radius:0 5px 5px 0;padding:11px 13px;font-size:14px;line-height:1.55;
+  }
+  .explain b{
+    display:block;font-family:"Courier Prime","Courier New",monospace;font-weight:700;
+    font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--e);margin-bottom:3px;
+  }
+  .panel .best{
+    margin:10px 0 0;font-family:"Courier Prime","Courier New",monospace;font-size:10.5px;
+    font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  }
+  .panel .best.new{color:var(--c)}
+
   /* ---- Bomb Range: the explosion ---- */
   .boom{position:fixed;inset:0;z-index:30;pointer-events:none}
   @keyframes shake{
@@ -531,9 +597,9 @@
     <!-- ================= HOME ================= -->
     <section class="view" id="view-home">
       <div class="masthead">
-        <h1 class="tagline">Four games for the table <em>while you wait for the food.</em></h1>
+        <h1 class="tagline">Five games for the table <em>while you wait for the food.</em></h1>
         <div class="facts">
-          <span>4 players</span><span>2 teams of 2</span><span>one phone, passed around</span><span>works with no signal</span>
+          <span>1 to 4 players</span><span>one phone, passed around</span><span>works with no signal</span>
         </div>
       </div>
       <hr class="rule">
@@ -633,6 +699,23 @@
       </div>
     </section>
 
+    <!-- ================= SEVENTH INNING ================= -->
+    <section class="view" id="view-trivia" hidden>
+      <div class="tstat">
+        <div class="qpips" id="t-pips"></div>
+        <div class="tscore" id="t-score"></div>
+      </div>
+      <div class="qcard">
+        <div class="qcat" id="t-cat"></div>
+        <h2 class="qtext" id="t-q"></h2>
+      </div>
+      <div class="answers" id="t-answers"></div>
+      <div class="explain" id="t-explain" hidden></div>
+      <div class="ctl">
+        <button class="btn primary" id="t-next" hidden>Next question &rarr;</button>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -711,6 +794,18 @@ var RULES = {
     '</ol>'+
     '<div class="eg"><b>For example</b>The range is <code>1 &ndash; 1000</code>. Red guesses 400 and it\'s too low, so the range becomes <code>401 &ndash; 1000</code>. Teal guesses 700 and it\'s too high, so the range becomes <code>401 &ndash; 699</code>. Now it\'s Red\'s turn and they have a much smaller box to work with.</div>',
 
+  trivia:
+    '<p class="lede">Answer ten baseball questions and see how many you can get right.</p>'+
+    '<ol>'+
+    '<li>You get one question at a time, with four answers to pick from.</li>'+
+    '<li>Tap the answer you think is right. You only get one try.</li>'+
+    '<li>The right answer turns green. If you picked a different one, yours turns red so you can see both.</li>'+
+    '<li>Either way, a sentence pops up telling you a bit more about the answer. Read it &mdash; that is how you get better at the next round.</li>'+
+    '<li>After ten questions you get your score, and the game remembers your best one.</li>'+
+    '</ol>'+
+    '<div class="eg"><b>Where the questions come from</b>Old-time baseball and its legends, teams and ballparks around the league, and things that have happened in the last few seasons. Every question about a recent season says which year it is asking about, so the answers stay right.</div>'+
+    '<p>This one is built for a single player. Hand the phone around and take turns if you want, and see who can beat the high score.</p>',
+
   race:
     '<p class="lede">Be the team that makes the total hit exactly 31.</p>'+
     '<ol>'+
@@ -737,6 +832,10 @@ var GAMES = [
     hook:"Guess near the secret number, but never land on it. The window keeps closing.",
     meta:["Nerve","3–5 min","Ages 6+"],
     glyph:'<span class="step">1</span><i class="bar"><i></i><b></b></i><span class="step">1000</span>' },
+  { key:"trivia", name:"Seventh Inning", accent:"var(--navy)",
+    hook:"Baseball trivia, ten questions at a time \u2014 and it tells you why every answer is right.",
+    meta:["Solo","5 min","Ages 9+"],
+    glyph:'<span class="step">A</span><span class="step">B</span><span class="step goal">C</span><span class="step">D</span>' },
   { key:"race", name:"Race to 31", accent:"var(--moss)",
     hook:"Add one, two or three. Land exactly on thirty-one and you win. There’s a trick to it.",
     meta:["Strategy","2 min","Ages 6+"],
@@ -773,7 +872,7 @@ var GAMES = [
    ROUTER
    ========================================================== */
 var current = null;
-var STARTERS = { agents:startAgents, cows:startCows, bomb:startBomb, race:startRace };
+var STARTERS = { agents:startAgents, cows:startCows, bomb:startBomb, race:startRace, trivia:startTrivia };
 
 function open(key){
   current = key;
@@ -1446,8 +1545,268 @@ function bRender(){
   });
 }
 
+var TRIVIA = [
+  {"c": "hist", "q": "Who broke baseball's colour barrier in 1947?", "a": ["Jackie Robinson", "Willie Mays", "Hank Aaron", "Satchel Paige"], "k": 0, "e": "Jackie Robinson played his first game for the Brooklyn Dodgers on April 15, 1947."},
+  {"c": "hist", "q": "Which number is retired by every single MLB team?", "a": ["42", "3", "7", "24"], "k": 0, "e": "It was Jackie Robinson's number. Players only wear it on Jackie Robinson Day each April."},
+  {"c": "hist", "q": "Before he became a famous slugger, Babe Ruth was a star at what?", "a": ["Pitching", "Catching", "Base stealing", "Managing"], "k": 0, "e": "Ruth was one of the best pitchers in baseball for the Red Sox before the Yankees made him an everyday hitter."},
+  {"c": "hist", "q": "How many home runs did Babe Ruth hit in his career?", "a": ["714", "600", "755", "500"], "k": 0, "e": "Ruth finished with 714, a record that stood for almost 40 years."},
+  {"c": "hist", "q": "Who broke Babe Ruth's career home run record in 1974?", "a": ["Hank Aaron", "Willie Mays", "Mickey Mantle", "Frank Robinson"], "k": 0, "e": "Hank Aaron hit number 715 on April 8, 1974, and finished his career with 755."},
+  {"c": "hist", "q": "Who holds the record for the most career home runs?", "a": ["Barry Bonds", "Hank Aaron", "Babe Ruth", "Albert Pujols"], "k": 0, "e": "Barry Bonds finished with 762 home runs."},
+  {"c": "hist", "q": "What is the record for home runs in a single season?", "a": ["73", "61", "70", "62"], "k": 0, "e": "Barry Bonds hit 73 in 2001."},
+  {"c": "hist", "q": "Joe DiMaggio is famous for a streak of getting a hit in how many games in a row?", "a": ["56", "44", "38", "61"], "k": 0, "e": "He did it in 1941, and nobody has come close since."},
+  {"c": "hist", "q": "Who was the last player to bat .400 over a full season?", "a": ["Ted Williams", "Tony Gwynn", "Rod Carew", "George Brett"], "k": 0, "e": "Ted Williams hit .406 in 1941. That means he got a hit about four times out of every ten."},
+  {"c": "hist", "q": "The award for the best pitcher in each league is named after whom?", "a": ["Cy Young", "Walter Johnson", "Christy Mathewson", "Lefty Grove"], "k": 0, "e": "Cy Young won 511 games, still the most of all time."},
+  {"c": "hist", "q": "Who threw seven no-hitters, more than anyone else?", "a": ["Nolan Ryan", "Sandy Koufax", "Randy Johnson", "Bob Feller"], "k": 0, "e": "Nolan Ryan threw his last one at age 44."},
+  {"c": "hist", "q": "Who struck out more batters than any other pitcher in history?", "a": ["Nolan Ryan", "Roger Clemens", "Randy Johnson", "Steve Carlton"], "k": 0, "e": "Nolan Ryan finished with 5,714 strikeouts."},
+  {"c": "hist", "q": "Who stole the most bases in baseball history?", "a": ["Rickey Henderson", "Lou Brock", "Ty Cobb", "Vince Coleman"], "k": 0, "e": "Rickey Henderson stole 1,406 bases."},
+  {"c": "hist", "q": "Who has the most hits in Major League history?", "a": ["Pete Rose", "Ty Cobb", "Hank Aaron", "Derek Jeter"], "k": 0, "e": "Pete Rose collected 4,256 hits."},
+  {"c": "hist", "q": "Cal Ripken Jr. was nicknamed the Iron Man because he did what?", "a": ["Played 2,632 games in a row", "Hit 600 home runs", "Never made an error", "Pitched both ways"], "k": 0, "e": "He did not miss a single game for more than 16 seasons."},
+  {"c": "hist", "q": "Whose consecutive-games record did Cal Ripken Jr. break?", "a": ["Lou Gehrig", "Babe Ruth", "Ty Cobb", "Honus Wagner"], "k": 0, "e": "Gehrig's streak of 2,130 games had stood since 1939."},
+  {"c": "hist", "q": "What was Lou Gehrig's nickname?", "a": ["The Iron Horse", "The Say Hey Kid", "The Splendid Splinter", "The Big Train"], "k": 0, "e": "He earned it by playing every single day for 14 seasons."},
+  {"c": "hist", "q": "Who made the over-the-shoulder grab known simply as The Catch in the 1954 World Series?", "a": ["Willie Mays", "Duke Snider", "Mickey Mantle", "Joe DiMaggio"], "k": 0, "e": "Mays caught it running full speed with his back to home plate."},
+  {"c": "hist", "q": "Willie Mays was known by what nickname?", "a": ["The Say Hey Kid", "The Kid", "The Hammer", "The Wizard"], "k": 0, "e": "He greeted people with Say hey! before he had learned their names."},
+  {"c": "hist", "q": "Which Pittsburgh Pirates star has baseball's community service award named after him?", "a": ["Roberto Clemente", "Willie Stargell", "Honus Wagner", "Ralph Kiner"], "k": 0, "e": "Clemente died delivering earthquake relief supplies in 1972."},
+  {"c": "hist", "q": "Satchel Paige was a legendary pitcher in which league before reaching the majors?", "a": ["The Negro Leagues", "The Pacific Coast League", "The Cactus League", "The International League"], "k": 0, "e": "He finally got to the majors at 42, the oldest rookie ever."},
+  {"c": "hist", "q": "Josh Gibson was a Negro Leagues legend at which position?", "a": ["Catcher", "Shortstop", "Pitcher", "Centre field"], "k": 0, "e": "He was famous for hitting some of the longest home runs anyone had seen."},
+  {"c": "hist", "q": "Which Dodgers left-hander threw a perfect game in 1965?", "a": ["Sandy Koufax", "Don Drysdale", "Fernando Valenzuela", "Orel Hershiser"], "k": 0, "e": "Koufax threw four no-hitters in four straight seasons."},
+  {"c": "hist", "q": "What is a perfect game?", "a": ["No batter reaches base at all", "No runs are scored", "No errors are made", "The game ends 1-0"], "k": 0, "e": "Twenty-seven batters up and twenty-seven batters down. No hits, no walks, nothing."},
+  {"c": "hist", "q": "Don Larsen is the only pitcher to throw a perfect game where?", "a": ["In the World Series", "On opening day", "In an All-Star Game", "In extra innings"], "k": 0, "e": "He did it for the Yankees in 1956."},
+  {"c": "hist", "q": "What is a no-hitter?", "a": ["The pitcher gives up no hits all game", "Nobody scores", "The game is rained out", "No home runs are hit"], "k": 0, "e": "A batter can still reach on a walk or an error, so a no-hitter is not always perfect."},
+  {"c": "hist", "q": "The Boston Red Sox ended an 86-year title drought in which year?", "a": ["2004", "1998", "2007", "2012"], "k": 0, "e": "Fans called the drought the Curse of the Bambino, after Babe Ruth was sold to the Yankees."},
+  {"c": "hist", "q": "The Chicago Cubs ended a 108-year drought by winning the World Series in which year?", "a": ["2016", "2008", "2020", "2012"], "k": 0, "e": "They beat Cleveland in seven games, and the last one went to extra innings."},
+  {"c": "hist", "q": "Which team has won the most World Series titles?", "a": ["New York Yankees", "St. Louis Cardinals", "Boston Red Sox", "Los Angeles Dodgers"], "k": 0, "e": "The Yankees have 27, more than any other team by a wide margin."},
+  {"c": "hist", "q": "Who finished with the most career saves?", "a": ["Mariano Rivera", "Trevor Hoffman", "Dennis Eckersley", "Lee Smith"], "k": 0, "e": "Mariano Rivera saved 652 games, almost all of them for the Yankees."},
+  {"c": "hist", "q": "Which Seattle star with a famously smooth swing was nicknamed The Kid?", "a": ["Ken Griffey Jr.", "Edgar Martinez", "Randy Johnson", "Ichiro Suzuki"], "k": 0, "e": "Ken Griffey Jr. reached the majors at 19 and hit 630 home runs."},
+  {"c": "hist", "q": "Which Yankees shortstop was known as The Captain?", "a": ["Derek Jeter", "Alex Rodriguez", "Phil Rizzuto", "Bobby Richardson"], "k": 0, "e": "Derek Jeter played 20 seasons, all for the Yankees."},
+  {"c": "hist", "q": "Where is the National Baseball Hall of Fame?", "a": ["Cooperstown, New York", "Boston, Massachusetts", "Chicago, Illinois", "Kansas City, Missouri"], "k": 0, "e": "It opened in Cooperstown in 1939."},
+  {"c": "hist", "q": "The first World Series was played in which year?", "a": ["1903", "1876", "1920", "1869"], "k": 0, "e": "Boston beat Pittsburgh in that first one."},
+  {"c": "hist", "q": "Where is the Little League World Series played every summer?", "a": ["Williamsport, Pennsylvania", "Cooperstown, New York", "Omaha, Nebraska", "Orlando, Florida"], "k": 0, "e": "It has been held in Williamsport since 1947."},
+  {"c": "hist", "q": "Which song do fans sing during the seventh-inning stretch?", "a": ["Take Me Out to the Ball Game", "Sweet Caroline", "God Bless America", "Centerfield"], "k": 0, "e": "It was written in 1908 by someone who had never been to a game."},
+  {"c": "hist", "q": "Which famous comedy routine is about players with confusing names?", "a": ["Who's on First", "The Hot Corner", "Three Strikes", "Safe at Home"], "k": 0, "e": "Abbott and Costello performed it in the 1930s and 40s."},
+  {"c": "hist", "q": "In 2014 Mo'ne Davis became the first girl to do what in the Little League World Series?", "a": ["Throw a shutout", "Hit a home run", "Manage a team", "Umpire a game"], "k": 0, "e": "She was 13, and she struck out eight batters that day."},
+  {"c": "hist", "q": "Bobby Thomson's famous 1951 home run is known as what?", "a": ["The Shot Heard 'Round the World", "The Called Shot", "The Catch", "The Homer in the Gloamin'"], "k": 0, "e": "It won the pennant for the New York Giants in the last inning of a playoff game."},
+  {"c": "hist", "q": "Which award goes to the best fielder at each position?", "a": ["The Gold Glove", "The Silver Slugger", "The Cy Young", "The Hank Aaron Award"], "k": 0, "e": "Gold Gloves have been handed out since 1957."},
+  {"c": "hist", "q": "A hitter wins the Triple Crown by leading the league in which three things?", "a": ["Average, home runs and RBIs", "Hits, walks and steals", "Runs, doubles and triples", "Home runs, steals and average"], "k": 0, "e": "It is very rare. Miguel Cabrera was the most recent, in 2012."},
+  {"c": "hist", "q": "How many players from one team are on the field when that team is on defence?", "a": ["9", "10", "8", "11"], "k": 0, "e": "Pitcher, catcher, four infielders and three outfielders."},
+  {"c": "hist", "q": "Jim Abbott threw a no-hitter in 1993 despite what?", "a": ["Being born with one hand", "Being 47 years old", "Pitching with a broken rib", "Never playing in the minors"], "k": 0, "e": "He pitched, then switched the glove to his other hand to field."},
+  {"c": "hist", "q": "Hank Aaron spent most of his career with which team?", "a": ["The Braves", "The Cardinals", "The Reds", "The Pirates"], "k": 0, "e": "He played for them in both Milwaukee and Atlanta."},
+  {"c": "hist", "q": "Ted Williams played his entire career for which team?", "a": ["Boston Red Sox", "New York Yankees", "Detroit Tigers", "Cleveland"], "k": 0, "e": "Nineteen seasons, all in Boston, with three years away to serve as a pilot."},
+  {"c": "hist", "q": "Stan Musial played his whole 22-year career for which team?", "a": ["St. Louis Cardinals", "Chicago Cubs", "Cincinnati Reds", "Philadelphia Phillies"], "k": 0, "e": "Fans called him Stan the Man."},
+  {"c": "hist", "q": "How many games does a team need to win to take the World Series?", "a": ["4", "3", "5", "7"], "k": 0, "e": "It is a best-of-seven series, so the first team to four wins."},
+  {"c": "hist", "q": "Jackie Robinson won the very first of which award in 1947?", "a": ["Rookie of the Year", "Most Valuable Player", "Gold Glove", "Cy Young"], "k": 0, "e": "The Rookie of the Year award is now named after him."},
+  {"c": "hist", "q": "The powerful 1927 Yankees lineup was nicknamed what?", "a": ["Murderers' Row", "The Big Red Machine", "The Bronx Bombers", "The Gashouse Gang"], "k": 0, "e": "Babe Ruth hit 60 home runs that season."},
+  {"c": "hist", "q": "Babe Ruth's legendary called shot happened in which World Series?", "a": ["1932", "1927", "1919", "1936"], "k": 0, "e": "People still argue about whether he really pointed to the outfield."},
+  {"c": "hist", "q": "Kirk Gibson's famous limping walk-off home run in the 1988 World Series was for which team?", "a": ["Los Angeles Dodgers", "Oakland Athletics", "Detroit Tigers", "New York Mets"], "k": 0, "e": "He could barely run, and it was his only at-bat of the series."},
+  {"c": "hist", "q": "The 1970s Cincinnati Reds were nicknamed what?", "a": ["The Big Red Machine", "Murderers' Row", "The Gashouse Gang", "The Whiz Kids"], "k": 0, "e": "They won back-to-back titles in 1975 and 1976."},
+  {"c": "hist", "q": "Which catcher was famous for sayings like It ain't over till it's over?", "a": ["Yogi Berra", "Johnny Bench", "Carlton Fisk", "Roy Campanella"], "k": 0, "e": "Yogi Berra won ten World Series rings with the Yankees."},
+  {"c": "hist", "q": "Ichiro Suzuki set a record in 2004 with how many hits in one season?", "a": ["262", "220", "240", "200"], "k": 0, "e": "He came to the majors from Japan and collected more than 3,000 hits in America."},
+  {"c": "hist", "q": "What does RBI stand for?", "a": ["Runs batted in", "Runs before innings", "Rate of base impact", "Running base index"], "k": 0, "e": "You get one every time your hit or out lets a runner score."},
+  {"c": "hist", "q": "What does ERA measure for a pitcher?", "a": ["Earned runs allowed per nine innings", "Every run allowed", "Errors in a row", "Extra run average"], "k": 0, "e": "The lower the number, the better the pitcher."},
+  {"c": "team", "q": "Which ballpark has the tall left field wall called the Green Monster?", "a": ["Fenway Park", "Wrigley Field", "Yankee Stadium", "Camden Yards"], "k": 0, "e": "It stands in Boston and it is about 37 feet tall."},
+  {"c": "team", "q": "Roughly how tall is Fenway Park's Green Monster?", "a": ["37 feet", "15 feet", "60 feet", "25 feet"], "k": 0, "e": "It is so tall that balls off it that look like home runs are often just singles."},
+  {"c": "team", "q": "Which ballpark has ivy growing on its outfield walls?", "a": ["Wrigley Field", "Fenway Park", "Dodger Stadium", "Oracle Park"], "k": 0, "e": "The ivy was planted in 1937 and balls sometimes get lost in it."},
+  {"c": "team", "q": "Wrigley Field is home to which team?", "a": ["Chicago Cubs", "Chicago White Sox", "Milwaukee Brewers", "Detroit Tigers"], "k": 0, "e": "It opened in 1914 and is the second-oldest ballpark still in use."},
+  {"c": "team", "q": "Fenway Park is home to which team?", "a": ["Boston Red Sox", "New York Yankees", "Baltimore Orioles", "Toronto Blue Jays"], "k": 0, "e": "Fenway opened in 1912 and is the oldest ballpark in the majors."},
+  {"c": "team", "q": "Which ballpark is the oldest still being used in Major League Baseball?", "a": ["Fenway Park", "Wrigley Field", "Dodger Stadium", "Yankee Stadium"], "k": 0, "e": "Fenway Park opened in 1912."},
+  {"c": "team", "q": "Which Major League team plays its home games outside the United States?", "a": ["Toronto Blue Jays", "Seattle Mariners", "San Diego Padres", "Miami Marlins"], "k": 0, "e": "The Blue Jays are the only MLB team based in Canada."},
+  {"c": "team", "q": "How many teams are there in Major League Baseball?", "a": ["30", "28", "32", "26"], "k": 0, "e": "Fifteen in each of the two leagues."},
+  {"c": "team", "q": "What are baseball's two leagues called?", "a": ["American and National", "Eastern and Western", "Major and Minor", "Atlantic and Pacific"], "k": 0, "e": "The winner of each league meets in the World Series."},
+  {"c": "team", "q": "Which two Major League teams both play in Chicago?", "a": ["Cubs and White Sox", "Cubs and Brewers", "White Sox and Tigers", "Cubs and Cardinals"], "k": 0, "e": "The Cubs play on the north side and the White Sox on the south side."},
+  {"c": "team", "q": "Which two Major League teams both play in New York City?", "a": ["Yankees and Mets", "Yankees and Nationals", "Mets and Phillies", "Yankees and Red Sox"], "k": 0, "e": "When they play each other it is called the Subway Series."},
+  {"c": "team", "q": "The Braves play in which city?", "a": ["Atlanta", "Milwaukee", "Boston", "Charlotte"], "k": 0, "e": "They played in Boston and Milwaukee before moving to Atlanta in 1966."},
+  {"c": "team", "q": "The Marlins play in which city?", "a": ["Miami", "Tampa", "Orlando", "Jacksonville"], "k": 0, "e": "They joined the league in 1993."},
+  {"c": "team", "q": "The Padres play in which city?", "a": ["San Diego", "San Francisco", "Sacramento", "San Jose"], "k": 0, "e": "Padre is Spanish for father, after the city's Spanish missionaries."},
+  {"c": "team", "q": "The Mariners play in which city?", "a": ["Seattle", "Portland", "Vancouver", "Tacoma"], "k": 0, "e": "The name fits a city right on the water."},
+  {"c": "team", "q": "The Rockies play in which state?", "a": ["Colorado", "Montana", "Utah", "Wyoming"], "k": 0, "e": "They are named after the Rocky Mountains."},
+  {"c": "team", "q": "The Royals play in which city?", "a": ["Kansas City", "St. Louis", "Omaha", "Oklahoma City"], "k": 0, "e": "They are named after a livestock show, the American Royal."},
+  {"c": "team", "q": "The Cardinals play in which city?", "a": ["St. Louis", "Phoenix", "Louisville", "Cincinnati"], "k": 0, "e": "They have won more World Series than any National League team."},
+  {"c": "team", "q": "The Brewers play in which city?", "a": ["Milwaukee", "Minneapolis", "Detroit", "Buffalo"], "k": 0, "e": "Milwaukee has a long history of breweries, which is where the name comes from."},
+  {"c": "team", "q": "The Reds play in which city?", "a": ["Cincinnati", "Cleveland", "Columbus", "Boston"], "k": 0, "e": "The Cincinnati Reds trace back to 1869 and the first professional team."},
+  {"c": "team", "q": "The Guardians play in which city?", "a": ["Cleveland", "Cincinnati", "Kansas City", "Pittsburgh"], "k": 0, "e": "The name comes from the Guardians of Traffic statues on a nearby bridge."},
+  {"c": "team", "q": "The Tigers play in which city?", "a": ["Detroit", "Chicago", "Cleveland", "Toronto"], "k": 0, "e": "Detroit has had a team called the Tigers since 1901."},
+  {"c": "team", "q": "The Phillies play in which city?", "a": ["Philadelphia", "Pittsburgh", "Baltimore", "Washington"], "k": 0, "e": "Short for Philadelphians, which is about as simple as a team name gets."},
+  {"c": "team", "q": "The Nationals play in which city?", "a": ["Washington, D.C.", "Baltimore", "Richmond", "Philadelphia"], "k": 0, "e": "They moved from Montreal in 2005."},
+  {"c": "team", "q": "The Pirates play in which city?", "a": ["Pittsburgh", "Philadelphia", "Tampa", "Baltimore"], "k": 0, "e": "They got the nickname after signing a player another team thought was theirs."},
+  {"c": "team", "q": "The Astros play in which city?", "a": ["Houston", "Dallas", "Austin", "San Antonio"], "k": 0, "e": "They are named after astronauts, because of the space centre in Houston."},
+  {"c": "team", "q": "The Twins play in which state?", "a": ["Minnesota", "Wisconsin", "Michigan", "Iowa"], "k": 0, "e": "They are named for the Twin Cities, Minneapolis and St. Paul."},
+  {"c": "team", "q": "In 2022 Cleveland's team changed its name to what?", "a": ["Guardians", "Spiders", "Blues", "Rockers"], "k": 0, "e": "They had been called the Indians since 1915."},
+  {"c": "team", "q": "Which team wears pinstripes at home and puts no player names on its jerseys?", "a": ["New York Yankees", "Boston Red Sox", "Los Angeles Dodgers", "Chicago Cubs"], "k": 0, "e": "The Yankees have kept the look almost unchanged for about a century."},
+  {"c": "team", "q": "The Phillie Phanatic is the mascot of which team?", "a": ["Philadelphia Phillies", "Pittsburgh Pirates", "Washington Nationals", "Baltimore Orioles"], "k": 0, "e": "The big green Phanatic showed up in 1978 and is one of the most famous mascots in sports."},
+  {"c": "team", "q": "Mr. Met is the mascot of which team?", "a": ["New York Mets", "New York Yankees", "Minnesota Twins", "Miami Marlins"], "k": 0, "e": "He has a baseball for a head and has been around since 1964."},
+  {"c": "team", "q": "At which team's ballpark do home runs splash into McCovey Cove?", "a": ["San Francisco Giants", "Seattle Mariners", "Tampa Bay Rays", "Miami Marlins"], "k": 0, "e": "People wait in kayaks to grab the balls out of the water."},
+  {"c": "team", "q": "Coors Field is famous for what?", "a": ["Thin mountain air that helps balls fly", "A retractable roof", "Being underground", "The shortest fences in baseball"], "k": 0, "e": "Denver is a mile above sea level, so baseballs travel farther there."},
+  {"c": "team", "q": "Camden Yards is home to which team?", "a": ["Baltimore Orioles", "Washington Nationals", "Philadelphia Phillies", "Pittsburgh Pirates"], "k": 0, "e": "When it opened in 1992 it started a wave of old-fashioned brick ballparks."},
+  {"c": "team", "q": "Which race happens between innings at Milwaukee Brewers games?", "a": ["A sausage race", "A hot dog race", "A pierogi race", "A presidents race"], "k": 0, "e": "Five giant sausages run around the warning track every game."},
+  {"c": "team", "q": "The Racing Presidents run at which team's home games?", "a": ["Washington Nationals", "Philadelphia Phillies", "Boston Red Sox", "Chicago Cubs"], "k": 0, "e": "Giant-headed versions of American presidents race in the fourth inning."},
+  {"c": "team", "q": "Which team is the Yankees' oldest and fiercest rival?", "a": ["Boston Red Sox", "New York Mets", "Los Angeles Dodgers", "Chicago Cubs"], "k": 0, "e": "The rivalry goes back more than a hundred years."},
+  {"c": "team", "q": "The Cubs' biggest rival is which team?", "a": ["St. Louis Cardinals", "Chicago White Sox", "Milwaukee Brewers", "Cincinnati Reds"], "k": 0, "e": "The two cities are close and the teams have played since the 1890s."},
+  {"c": "team", "q": "What is a Subway Series?", "a": ["Yankees against Mets", "Cubs against White Sox", "Dodgers against Angels", "Any game in a domed stadium"], "k": 0, "e": "Both teams are in New York, so fans can ride the subway between ballparks."},
+  {"c": "team", "q": "Where do Major League teams hold spring training?", "a": ["Florida and Arizona", "Texas and California", "Georgia and Nevada", "Alabama and New Mexico"], "k": 0, "e": "They go somewhere warm in February and March."},
+  {"c": "team", "q": "Teams that train in Florida play in which league?", "a": ["The Grapefruit League", "The Cactus League", "The Sunshine League", "The Citrus League"], "k": 0, "e": "Florida grows a lot of grapefruit, which is where the name comes from."},
+  {"c": "team", "q": "Teams that train in Arizona play in which league?", "a": ["The Cactus League", "The Grapefruit League", "The Desert League", "The Sonoran League"], "k": 0, "e": "All of the Arizona teams train near Phoenix."},
+  {"c": "team", "q": "Which team is named after a bird and plays in Baltimore?", "a": ["Orioles", "Cardinals", "Blue Jays", "Ravens"], "k": 0, "e": "The Baltimore oriole is the state bird of Maryland."},
+  {"c": "team", "q": "The Rays play in which state?", "a": ["Florida", "Texas", "California", "Arizona"], "k": 0, "e": "They play in the Tampa Bay area."},
+  {"c": "team", "q": "The Rangers play in which state?", "a": ["Texas", "Arizona", "Oklahoma", "New Mexico"], "k": 0, "e": "They are named after the Texas Rangers law officers."},
+  {"c": "team", "q": "The Diamondbacks play in which state?", "a": ["Arizona", "Nevada", "New Mexico", "Texas"], "k": 0, "e": "A diamondback is a rattlesnake found in the Arizona desert."},
+  {"c": "team", "q": "Yankee Stadium is nicknamed what?", "a": ["The House That Ruth Built", "The Friendly Confines", "The Big A", "The Jewel Box"], "k": 0, "e": "Babe Ruth's popularity paid for the original stadium in 1923."},
+  {"c": "team", "q": "Wrigley Field is nicknamed what?", "a": ["The Friendly Confines", "The House That Ruth Built", "The Cathedral", "The Launching Pad"], "k": 0, "e": "A Cubs great, Ernie Banks, made the nickname famous."},
+  {"c": "team", "q": "Wally the Green Monster is the mascot of which team?", "a": ["Boston Red Sox", "Seattle Mariners", "Oakland Athletics", "Toronto Blue Jays"], "k": 0, "e": "He is named after the big wall in left field."},
+  {"c": "team", "q": "Dodger Stadium is in which city?", "a": ["Los Angeles", "Brooklyn", "San Diego", "San Francisco"], "k": 0, "e": "The Dodgers moved from Brooklyn to Los Angeles in 1958."},
+  {"c": "team", "q": "Before Los Angeles, the Dodgers played in which city?", "a": ["Brooklyn", "Boston", "Baltimore", "Buffalo"], "k": 0, "e": "They were the Brooklyn Dodgers until 1957."},
+  {"c": "team", "q": "The Giants moved to San Francisco from which city?", "a": ["New York", "Boston", "Philadelphia", "Chicago"], "k": 0, "e": "They moved the same year as the Dodgers, in 1958."},
+  {"c": "team", "q": "Which league's teams have used a designated hitter the longest?", "a": ["American League", "National League", "Both started together", "Neither uses one"], "k": 0, "e": "The American League added the DH in 1973. The National League waited until 2022."},
+  {"c": "now", "q": "Which team won the 2025 World Series?", "a": ["Los Angeles Dodgers", "Toronto Blue Jays", "New York Yankees", "Seattle Mariners"], "k": 0, "e": "The Dodgers won it in seven games."},
+  {"c": "now", "q": "Who did the Dodgers beat in the 2025 World Series?", "a": ["Toronto Blue Jays", "New York Yankees", "Milwaukee Brewers", "Detroit Tigers"], "k": 0, "e": "It went the full seven games before the Dodgers finished it off."},
+  {"c": "now", "q": "Which team won the 2024 World Series?", "a": ["Los Angeles Dodgers", "New York Yankees", "Texas Rangers", "Philadelphia Phillies"], "k": 0, "e": "The Dodgers beat the Yankees, then won it again in 2025."},
+  {"c": "now", "q": "Who did the Dodgers beat in the 2024 World Series?", "a": ["New York Yankees", "Toronto Blue Jays", "Houston Astros", "Atlanta Braves"], "k": 0, "e": "The Dodgers took that series four games to one."},
+  {"c": "now", "q": "In 2024, Shohei Ohtani became the first player ever to do what in one season?", "a": ["50 home runs and 50 stolen bases", "60 home runs", "300 strikeouts and 40 home runs", "Bat .400"], "k": 0, "e": "Nobody had ever managed 50 of each before."},
+  {"c": "now", "q": "Which country is Shohei Ohtani from?", "t": true, "a": ["Japan", "South Korea", "Taiwan", "The Dominican Republic"], "k": 0, "e": "He played for the Hokkaido Nippon-Ham Fighters before coming to the majors."},
+  {"c": "now", "q": "What makes Shohei Ohtani so unusual?", "t": true, "a": ["He is a star pitcher and a star hitter", "He bats with one hand", "He plays every position", "He never strikes out"], "k": 0, "e": "Almost nobody has done both at a high level since Babe Ruth."},
+  {"c": "now", "q": "Which team did Shohei Ohtani join for the 2024 season?", "a": ["Los Angeles Dodgers", "New York Yankees", "San Francisco Giants", "Chicago Cubs"], "k": 0, "e": "He moved across town from the Angels."},
+  {"c": "now", "q": "Which team did Shohei Ohtani play for before the Dodgers?", "t": true, "a": ["Los Angeles Angels", "Seattle Mariners", "Texas Rangers", "San Diego Padres"], "k": 0, "e": "He spent six seasons with the Angels and won two MVP awards there."},
+  {"c": "now", "q": "Who won the 2025 American League MVP award?", "a": ["Aaron Judge", "Cal Raleigh", "Bobby Witt Jr.", "Juan Soto"], "k": 0, "e": "It was another huge season for the Yankees slugger."},
+  {"c": "now", "q": "Who won the 2025 National League MVP award?", "a": ["Shohei Ohtani", "Kyle Schwarber", "Freddie Freeman", "Ronald Acuna Jr."], "k": 0, "e": "Ohtani has now won the award in both leagues."},
+  {"c": "now", "q": "Who won the 2025 American League Cy Young Award?", "a": ["Tarik Skubal", "Garrett Crochet", "Max Fried", "Framber Valdez"], "k": 0, "e": "Skubal won it in back-to-back seasons."},
+  {"c": "now", "q": "Tarik Skubal, the 2025 AL Cy Young winner, pitches for which team?", "a": ["Detroit Tigers", "Cleveland Guardians", "Minnesota Twins", "Kansas City Royals"], "k": 0, "e": "He has been the ace in Detroit."},
+  {"c": "now", "q": "Who won the 2025 National League Cy Young Award?", "a": ["Paul Skenes", "Zack Wheeler", "Logan Webb", "Chris Sale"], "k": 0, "e": "Skenes had only been in the majors since 2024."},
+  {"c": "now", "q": "Paul Skenes, the 2025 NL Cy Young winner, pitches for which team?", "a": ["Pittsburgh Pirates", "Philadelphia Phillies", "San Francisco Giants", "Atlanta Braves"], "k": 0, "e": "He was the first overall pick in the 2023 draft."},
+  {"c": "now", "q": "In 2025 Cal Raleigh set a record for a catcher by hitting how many home runs?", "a": ["60", "45", "52", "38"], "k": 0, "e": "That is the most ever by a catcher and by a switch-hitter."},
+  {"c": "now", "q": "Which team did Cal Raleigh play for during his record-setting 2025 season?", "a": ["Seattle Mariners", "Baltimore Orioles", "Texas Rangers", "Milwaukee Brewers"], "k": 0, "e": "Mariners fans call him the Big Dumper."},
+  {"c": "now", "q": "In 2023 baseball added a clock to speed up games. What is it called?", "a": ["The pitch clock", "The swing clock", "The inning clock", "The shot clock"], "k": 0, "e": "Pitchers now have only a few seconds to start their delivery, and games got about half an hour shorter."},
+  {"c": "now", "q": "What did Major League Baseball do to the bases in 2023?", "a": ["Made them bigger", "Made them smaller", "Moved them farther apart", "Painted them blue"], "k": 0, "e": "They went from 15 inches to 18 inches, which made stealing a little easier and safer."},
+  {"c": "now", "q": "What did Major League Baseball ban in 2023?", "a": ["The infield shift", "The intentional walk", "Pitching changes", "Sunglasses"], "k": 0, "e": "Teams can no longer move three infielders to one side of second base."},
+  {"c": "now", "q": "Aaron Judge set the American League single-season home run record in 2022 with how many?", "a": ["62", "61", "58", "65"], "k": 0, "e": "He passed Roger Maris, whose 61 had stood since 1961."},
+  {"c": "now", "q": "Aaron Judge won the 2025 American League MVP playing for which team?", "a": ["New York Yankees", "New York Mets", "Boston Red Sox", "Los Angeles Angels"], "k": 0, "e": "He has been the Yankees captain since 2023."},
+  {"c": "now", "q": "Which team won its first ever World Series in 2023?", "a": ["Texas Rangers", "Arizona Diamondbacks", "Seattle Mariners", "San Diego Padres"], "k": 0, "e": "The Rangers had been waiting since 1961."},
+  {"c": "now", "q": "Which team won the 2022 World Series?", "a": ["Houston Astros", "Philadelphia Phillies", "Atlanta Braves", "New York Yankees"], "k": 0, "e": "The Astros beat the Phillies in six games."},
+  {"c": "now", "q": "Which team won the 2021 World Series?", "a": ["Atlanta Braves", "Houston Astros", "Los Angeles Dodgers", "Boston Red Sox"], "k": 0, "e": "It was Atlanta's first title since 1995."},
+  {"c": "now", "q": "Since 2023, in extra innings Major League Baseball starts each half-inning with a runner on which base?", "a": ["Second", "First", "Third", "No runner at all"], "k": 0, "e": "Players call it the ghost runner. It helps games end sooner."},
+  {"c": "now", "q": "What does DH stand for, used in both leagues since 2022?", "a": ["Designated hitter", "Double header", "Defensive half", "Deep hitter"], "k": 0, "e": "The DH bats instead of the pitcher."},
+  {"c": "now", "q": "Which country won the 2023 World Baseball Classic?", "a": ["Japan", "The United States", "The Dominican Republic", "Venezuela"], "k": 0, "e": "Shohei Ohtani struck out Mike Trout for the final out."},
+  {"c": "now", "q": "Who did Shohei Ohtani strike out for the last out of the 2023 World Baseball Classic?", "a": ["Mike Trout", "Aaron Judge", "Mookie Betts", "Paul Goldschmidt"], "k": 0, "e": "They were teammates on the Angels at the time, facing each other for their countries."},
+  {"c": "now", "q": "Mike Trout made his major league debut in 2011 with which team?", "a": ["Los Angeles Angels", "Los Angeles Dodgers", "Philadelphia Phillies", "New York Mets"], "k": 0, "e": "He won three MVP awards with the Angels."},
+  {"c": "now", "q": "Which team won the 2020 World Series?", "a": ["Los Angeles Dodgers", "Tampa Bay Rays", "Washington Nationals", "Houston Astros"], "k": 0, "e": "It was a short 60-game season because of the pandemic."},
+  {"c": "now", "q": "Ohtani won American League MVP awards in 2021 and 2023 while playing for which team?", "a": ["Los Angeles Angels", "Los Angeles Dodgers", "Seattle Mariners", "Texas Rangers"], "k": 0, "e": "He was both the team's best hitter and one of its best pitchers."},
+];
+
+var TCAT = { hist:"History & Legends", team:"Teams & Ballparks", now:"Today's Game" };
+var TLETTER = ["A","B","C","D"];
+var TROUND = 10;
+var TR = null;
+
+/* localStorage can throw outright in some embedded contexts, so every touch
+   is guarded and the game plays fine when it comes back empty. */
+var TBEST = "breadbasket.seventh.best";
+function tReadBest(){
+  try{ var v = localStorage.getItem(TBEST); return v === null ? null : parseInt(v, 10); }
+  catch(e){ return null; }
+}
+function tWriteBest(v){ try{ localStorage.setItem(TBEST, String(v)); }catch(e){} }
+
+function startTrivia(){
+  var picks = shuffle(TRIVIA.slice()).slice(0, TROUND).map(function(row){
+    var opts = row.a.map(function(t, i){ return { t:t, ok:i === row.k }; });
+    shuffle(opts);
+    return { c:row.c, q:row.q, e:row.e, opts:opts };
+  });
+  TR = { qs:picks, i:0, score:0, picked:null, marks:[] };
+  tRender();
+}
+
+function tAnswer(n){
+  if(!TR || TR.picked !== null) return;
+  TR.picked = n;
+  var ok = TR.qs[TR.i].opts[n].ok;
+  if(ok) TR.score++;
+  TR.marks[TR.i] = ok ? "right" : "wrong";
+  tRender();
+}
+
+function tNext(){
+  if(!TR || TR.picked === null) return;
+  TR.i++;
+  TR.picked = null;
+  if(TR.i >= TR.qs.length) tFinish();
+  else { tRender(); window.scrollTo(0,0); }
+}
+
+function tRender(){
+  var view = $("view-trivia");
+  view.style.setProperty("--c", "var(--navy)");
+  var item = TR.qs[TR.i], answered = TR.picked !== null;
+
+  var pips = $("t-pips");
+  pips.innerHTML = "";
+  for(var d = 0; d < TR.qs.length; d++){
+    pips.appendChild(el("i", "qpip"
+      + (TR.marks[d] ? " " + TR.marks[d] : "")
+      + (d === TR.i && !answered ? " now" : "")));
+  }
+  $("t-score").innerHTML = "<b>" + TR.score + "</b> right &middot; " + (TR.i + 1) + " of " + TR.qs.length;
+  $("t-cat").textContent = TCAT[item.c];
+  $("t-q").textContent = item.q;
+
+  var host = $("t-answers");
+  host.innerHTML = "";
+  item.opts.forEach(function(o, n){
+    var b = el("button", "ans");
+    b.type = "button";
+    b.appendChild(el("span", "lt", TLETTER[n]));
+    b.appendChild(el("span", null, o.t));
+    if(answered){
+      b.disabled = true;
+      if(o.ok) b.classList.add("right");
+      else if(n === TR.picked) b.classList.add("wrong");
+      else b.classList.add("faded");
+    } else {
+      b.addEventListener("click", function(){ tAnswer(n); });
+    }
+    host.appendChild(b);
+  });
+
+  var ex = $("t-explain");
+  ex.hidden = !answered;
+  if(answered){
+    var right = TR.marks[TR.i] === "right";
+    ex.style.setProperty("--e", right ? "var(--moss)" : "var(--red)");
+    ex.innerHTML = "";
+    ex.appendChild(el("b", null, right ? "Correct" : "Not quite"));
+    var answer = item.opts.filter(function(o){ return o.ok; })[0].t;
+    ex.appendChild(el("span", null, (right ? "" : "The answer is " + answer + ". ") + item.e));
+  }
+  var nx = $("t-next");
+  nx.hidden = !answered;
+  nx.textContent = TR.i === TR.qs.length - 1 ? "See how you did \u2192" : "Next question \u2192";
+}
+
+function tFinish(){
+  var s = TR.score, was = tReadBest(), isBest = (was === null || s > was);
+  if(isBest) tWriteBest(s);
+  var title = s === TROUND ? "Hall of Famer"
+            : s >= 8 ? "All-Star"
+            : s >= 6 ? "Everyday starter"
+            : s >= 4 ? "Still taking your swings"
+            : "Rookie ball";
+
+  var panel = el("div", "panel win");
+  panel.style.setProperty("--c", "var(--navy)");
+  panel.appendChild(el("h3", "big", s + " out of " + TROUND));
+  panel.appendChild(el("p", "why", title + "."));
+  panel.appendChild(el("p", "best" + (isBest ? " new" : ""),
+    isBest ? "New best score" : "Your best so far: " + was + " out of " + TROUND));
+
+  var again = el("button", "btn primary", "Play again");
+  again.addEventListener("click", function(){ closeModal(); startTrivia(); window.scrollTo(0,0); });
+  var back = el("button", "btn", "Back to the basket");
+  back.addEventListener("click", home);
+  panel.appendChild(again); panel.appendChild(back);
+  showModal(panel);
+}
+
+$("t-next").addEventListener("click", tNext);
+
 /* ==========================================================
-   GAME 4 — RACE TO 31
+   GAME 5 — RACE TO 31
    ========================================================== */
 var R = null;
 var GOAL = 31;
